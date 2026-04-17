@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.gitignore
+.env
+SPEC.md
+INSTRUCTIONS.md
+DEVELOPMENT_PLAN.md
