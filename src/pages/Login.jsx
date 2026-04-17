@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loginUser } from '../api/authApi.js'
 import { useAuth } from '../hooks/useAuth.jsx'
 
 export default function Login() {
@@ -9,18 +10,22 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
+
     if (!email || !password) {
       setError('Email and password are required.')
       return
     }
 
-    const role = email.toLowerCase() === 'admin@smartseason.com' ? 'admin' : 'agent'
-    const name = email.split('@')[0]
-
-    login({ email, name, role })
-    navigate('/dashboard', { replace: true })
+    try {
+      const result = await loginUser({ email, password })
+      login({ token: result.token, user: result.user })
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      setError(err.message || 'Unable to login at this time.')
+    }
   }
 
   return (

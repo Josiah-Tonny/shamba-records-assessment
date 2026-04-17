@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchFields } from '../api/fieldsApi.js'
 import { computeFieldStatus } from '../utils/statusLogic.js'
+import { useAuth } from '../hooks/useAuth.jsx'
 import FieldCard from '../components/FieldCard.jsx'
 
 export default function Fields() {
+  const { token } = useAuth()
   const [fields, setFields] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -14,7 +16,7 @@ export default function Fields() {
 
     async function loadFields() {
       try {
-        const data = await fetchFields()
+        const data = await fetchFields(token)
         if (!cancelled) {
           setFields(data)
         }
@@ -33,7 +35,7 @@ export default function Fields() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [token])
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">

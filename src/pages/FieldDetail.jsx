@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { fetchFieldById } from '../api/fieldsApi.js'
 import { computeFieldStatus } from '../utils/statusLogic.js'
+import { useAuth } from '../hooks/useAuth.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 
 export default function FieldDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { token } = useAuth()
   const [field, setField] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -16,7 +18,7 @@ export default function FieldDetail() {
 
     async function loadField() {
       try {
-        const data = await fetchFieldById(id)
+        const data = await fetchFieldById(id, token)
         if (!cancelled) {
           setField(data)
         }
@@ -38,7 +40,7 @@ export default function FieldDetail() {
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [id, token])
 
   if (loading) {
     return (

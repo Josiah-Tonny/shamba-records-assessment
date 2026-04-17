@@ -3,7 +3,7 @@ import { AuthContext } from './auth-context.jsx'
 
 const AUTH_STORAGE_KEY = 'shamba-auth'
 
-function loadStoredUser() {
+function loadStoredAuth() {
   const stored = localStorage.getItem(AUTH_STORAGE_KEY)
   if (!stored) {
     return null
@@ -18,28 +18,29 @@ function loadStoredUser() {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadStoredUser)
+  const [auth, setAuth] = useState(loadStoredAuth)
 
-  const login = ({ email, name, role }) => {
-    const nextUser = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
-      email,
-      name,
-      role,
-    }
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextUser))
-    setUser(nextUser)
-    return nextUser
+  const login = ({ token, user }) => {
+    const nextAuth = { token, user }
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextAuth))
+    setAuth(nextAuth)
+    return nextAuth
   }
 
   const logout = () => {
     localStorage.removeItem(AUTH_STORAGE_KEY)
-    setUser(null)
+    setAuth(null)
   }
 
   const value = useMemo(
-    () => ({ user, isAuthenticated: Boolean(user), login, logout }),
-    [user],
+    () => ({
+      user: auth?.user || null,
+      token: auth?.token || null,
+      isAuthenticated: Boolean(auth?.token),
+      login,
+      logout,
+    }),
+    [auth],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

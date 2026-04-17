@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { registerUser } from '../api/authApi.js'
 import { useAuth } from '../hooks/useAuth.jsx'
 
 export default function Register() {
@@ -10,15 +11,22 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
+
     if (!name || !email || !password) {
       setError('Name, email, and password are required.')
       return
     }
 
-    login({ email, name, role: 'agent' })
-    navigate('/dashboard', { replace: true })
+    try {
+      const result = await registerUser({ name, email, password })
+      login({ token: result.token, user: result.user })
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      setError(err.message || 'Unable to register at this time.')
+    }
   }
 
   return (
