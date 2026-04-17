@@ -1,22 +1,24 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-
-const AuthContext = createContext(null)
+import { useMemo, useState } from 'react'
+import { AuthContext } from './auth-context.jsx'
 
 const AUTH_STORAGE_KEY = 'shamba-auth'
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+function loadStoredUser() {
+  const stored = localStorage.getItem(AUTH_STORAGE_KEY)
+  if (!stored) {
+    return null
+  }
 
-  useEffect(() => {
-    const stored = localStorage.getItem(AUTH_STORAGE_KEY)
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored))
-      } catch (error) {
-        localStorage.removeItem(AUTH_STORAGE_KEY)
-      }
-    }
-  }, [])
+  try {
+    return JSON.parse(stored)
+  } catch {
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+    return null
+  }
+}
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(loadStoredUser)
 
   const login = ({ email, name, role }) => {
     const nextUser = {
@@ -41,12 +43,4 @@ export function AuthProvider({ children }) {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider')
-  }
-  return context
 }

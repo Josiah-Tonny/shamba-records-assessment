@@ -1,4 +1,5 @@
-import { useAuth } from '../context/AuthContext.jsx'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth.jsx'
 
 export default function Dashboard() {
   const { logout, user } = useAuth()
@@ -14,13 +15,21 @@ export default function Dashboard() {
                 Welcome back, {user?.name || user?.email}
               </h1>
             </div>
-            <button
-              type="button"
-              onClick={logout}
-              className="inline-flex items-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-            >
-              Sign out
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                to="/fields"
+                className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+              >
+                Manage fields
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="inline-flex items-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
           <p className="mt-4 max-w-2xl text-slate-600">
             This is the first authenticated screen. Later we will add admin and agent dashboards, field management, and update history.
