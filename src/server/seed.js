@@ -30,15 +30,18 @@ const seedDatabase = async () => {
       ]
     );
 
-    const users = usersResult.rows;
-    const adminId = users.find(u => u.role === 'admin')?.id;
-    const agentId = users.find(u => u.role === 'agent')?.id;
+    // Query for users (either from INSERT result or already existing)
+    const allUsersResult = await pool.query('SELECT id, role FROM users WHERE role IN ($1, $2)', ['admin', 'agent']);
+    const allUsers = allUsersResult.rows;
+    const adminId = allUsers.find(u => u.role === 'admin')?.id;
+    const agentId = allUsers.find(u => u.role === 'agent')?.id;
 
     if (!adminId || !agentId) {
-      console.log('Users already exist, skipping insertion');
-    } else {
-      console.log('✓ Created demo users');
+      console.log('Error: Admin and Agent users must exist');
+      return;
     }
+
+    console.log('✓ Admin and Agent users ready');
 
     // Seed fields
     const fieldsData = [

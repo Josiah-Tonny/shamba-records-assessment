@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
-import axios from 'axios';
+import api, { configureRefresh, setAuthToken } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -68,55 +68,34 @@ const initialState = {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Set up axios interceptor for automatic token refresh
+  // Configure token refresh callback for api instance
   useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-
-          try {
-            dispatch({ type: 'REFRESH_START' });
-            const response = await axios.post('/api/auth/refresh', {}, { withCredentials: true });
-            const newAccessToken = response.data.data.accessToken;
-
-            dispatch({ type: 'REFRESH_SUCCESS', payload: newAccessToken });
-
-            // Retry the original request with new token
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return axios(originalRequest);
-          } catch (refreshError) {
-            dispatch({ type: 'REFRESH_FAILURE', payload: 'Session expired' });
-            return Promise.reject(refreshError);
-          }
-        }
-
-        return Promise.reject(error);
+    configureRefresh(async () => {
+      dispatch({ type: 'REFRESH_START' });
+      try {
+        const response = await api.post('/auth/refresh', {});
+        const newAccessToken = response.data.data.accessToken;
+        dispatch({ type: 'REFRESH_SUCCESS', payload: newAccessToken });
+        return newAccessToken;
+      } catch (error) {
+        dispatch({ type: 'REFRESH_FAILURE', payload: 'Session expired' });
+        throw error;
       }
-    );
-
-    return () => {
-      axios.interceptors.response.eject(interceptor);
-    };
+    });
   }, []);
 
   // Set authorization header when token changes
   useEffect(() => {
-    if (state.accessToken) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${state.accessToken}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
+    setAuthToken(state.accessToken);
   }, [state.accessToken]);
 
   const login = async (email, password) => {
     try {
       dispatch({ type: 'LOGIN_START' });
-      const response = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
-      dispatch({ type: 'LOGIN_SUCCESS', payload: response.data.data });
+      const response = await api.post('/auth/login', { email, password });
+      const { user, accessToken } = response.data.data;
+      setAuthToken(accessToken);
+      dispatch({ type: 'LOGIN_SUCCESS', payload: { user, accessToken } });
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Login failed';
       dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
@@ -127,7 +106,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, role) => {
     try {
       dispatch({ type: 'LOGIN_START' });
-      const response = await axios.post('/api/auth/register', { name, email, password, role });
+      const response = await api.post('/auth/register', { name, email, password, role });
       // After registration, automatically log in
       await login(email, password);
     } catch (error) {
@@ -139,10 +118,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('/api/auth/logout', {}, { withCredentials: true });
+      await api.post('/auth/logout', {});
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      setAuthToken(null);
       dispatch({ type: 'LOGOUT' });
     }
   };

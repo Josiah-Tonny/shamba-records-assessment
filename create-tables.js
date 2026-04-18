@@ -4,6 +4,11 @@ const createTables = async () => {
   try {
     console.log('Creating database tables...');
 
+    // Drop existing tables if they exist (in correct order due to foreign keys)
+    await pool.query('DROP TABLE IF EXISTS field_updates CASCADE;');
+    await pool.query('DROP TABLE IF EXISTS fields CASCADE;');
+    await pool.query('DROP TABLE IF EXISTS users CASCADE;');
+
     // Users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
