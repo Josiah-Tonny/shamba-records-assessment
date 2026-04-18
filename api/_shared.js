@@ -1,6 +1,35 @@
 /* global process */
+import fs from 'fs'
+import path from 'path'
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
+
+function loadDotEnv() {
+  if (process.env.NODE_ENV === 'production') {
+    return
+  }
+
+  const envPath = path.resolve(process.cwd(), '.env')
+  if (!fs.existsSync(envPath)) {
+    return
+  }
+
+  const raw = fs.readFileSync(envPath, 'utf8')
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue
+    }
+
+    const [key, ...rest] = trimmed.split('=')
+    const value = rest.join('=').trim()
+    if (key && value && !process.env[key]) {
+      process.env[key] = value
+    }
+  }
+}
+
+loadDotEnv()
 
 // Lazy pool initialization for Vercel serverless environment
 let pool = null

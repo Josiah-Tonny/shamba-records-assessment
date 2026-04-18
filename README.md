@@ -9,7 +9,11 @@ React (Vite) + Vercel API + Neon PostgreSQL. Two roles (**admin**, **agent**): a
 3. Create a `.env` from `.env.example` and set `DATABASE_URL` and `JWT_SECRET` (do not commit secrets).
 4. Run the SQL schema in `DEVELOPMENT_PLAN.md` against your Neon database.
 5. Run `npm run dev` for the UI only, or `vercel dev` so the app and `/api` share one origin; set `VITE_API_BASE_URL` accordingly (see `.env.example`).
+   - Note: `npm run dev` does not expose the serverless `/api` routes locally, so use `vercel dev` when testing authentication and database-backed endpoints.
 6. Seed demo users and sample data with `npm run seed` when your database is empty.
+7. After deployment, verify environment configuration with `/api/debug` and `/api/health`.
+   - `/api/debug` shows whether `DATABASE_URL` and `JWT_SECRET` are present.
+   - `/api/health` confirms whether the database connection succeeds.
 
 ## Design Decisions
 
