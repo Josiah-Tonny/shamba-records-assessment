@@ -1,33 +1,33 @@
-import { jsonResponse, errorResponse, pool, verifyRequest } from './shared.js'
+import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from '../api/_shared.js'
 
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return optionsResponse()
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return optionsResponse(res)
   }
 
-  if (event.httpMethod !== 'GET') {
-    return errorResponse('Method not allowed', 405)
+  if (req.method !== 'GET') {
+    return errorResponse(res, 'Method not allowed', 405)
   }
 
   let user
   try {
-    user = verifyRequest(event)
+    user = verifyRequest(req)
   } catch (error) {
-    return errorResponse(error.message, 401)
+    return errorResponse(res, error.message, 401)
   }
 
-  const fieldId = event.queryStringParameters?.fieldId
+  const fieldId = req.query?.fieldId
   if (!fieldId) {
-    return errorResponse('Field ID is required', 400)
+    return errorResponse(res, 'Field ID is required', 400)
   }
 
   const fieldResult = await pool.query('SELECT assigned_to FROM fields WHERE id = $1', [fieldId])
   if (fieldResult.rowCount === 0) {
-    return errorResponse('Field not found', 404)
+    return errorResponse(res, 'Field not found', 404)
   }
 
   if (user.role === 'agent' && fieldResult.rows[0].assigned_to !== user.id) {
-    return errorResponse('Agent may only view updates for assigned fields', 403)
+    return errorResponse(res, 'Agent may only view updates for assigned fields', 403)
   }
 
   const statement = `
@@ -60,5 +60,5 @@ export const handler = async (event) => {
     },
   }))
 
-  return jsonResponse(updates)
+  return jsonResponse(res, updates)
 }

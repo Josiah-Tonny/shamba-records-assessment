@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest } from './shared.js'
+import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from '../api/_shared.js'
 
 function formatField(row) {
   return {
@@ -14,39 +14,39 @@ function formatField(row) {
   }
 }
 
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return optionsResponse()
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return optionsResponse(res)
   }
 
-  if (event.httpMethod !== 'PUT') {
-    return errorResponse('Method not allowed', 405)
+  if (req.method !== 'PUT') {
+    return errorResponse(res, 'Method not allowed', 405)
   }
 
   let user
   try {
-    user = verifyRequest(event)
+    user = verifyRequest(req)
   } catch (error) {
-    return errorResponse(error.message, 401)
+    return errorResponse(res, error.message, 401)
   }
 
-  if (!event.body) {
-    return errorResponse('Missing request body', 400)
+  if (!req.body) {
+    return errorResponse(res, 'Missing request body', 400)
   }
 
-  const { id, name, cropType, plantingDate, stage, assignedTo } = JSON.parse(event.body)
+  const { id, name, cropType, plantingDate, stage, assignedTo } = req.body
   if (!id) {
-    return errorResponse('Field id is required', 400)
+    return errorResponse(res, 'Field id is required', 400)
   }
 
   const fieldResult = await pool.query('SELECT assigned_to FROM fields WHERE id = $1', [id])
   if (fieldResult.rowCount === 0) {
-    return errorResponse('Field not found', 404)
+    return errorResponse(res, 'Field not found', 404)
   }
 
   const field = fieldResult.rows[0]
   if (user.role === 'agent' && field.assigned_to !== user.id) {
-    return errorResponse('Agent may only update assigned fields', 403)
+    return errorResponse(res, 'Agent may only update assigned fields', 403)
   }
 
   const updates = []
@@ -54,10 +54,10 @@ export const handler = async (event) => {
 
   if (user.role === 'agent') {
     if (!stage) {
-      return errorResponse('Stage is required for agent updates', 400)
+      return errorResponse(res, 'Stage is required for agent updates', 400)
     }
     if (name || cropType || plantingDate || assignedTo !== undefined) {
-      return errorResponse('Agents may only update the field stage', 403)
+      return errorResponse(res, 'Agents may only update the field stage', 403)
     }
     values.push(stage)
     updates.push(`stage = $${values.length}`)
@@ -85,7 +85,7 @@ export const handler = async (event) => {
   }
 
   if (updates.length === 0) {
-    return errorResponse('No update fields provided', 400)
+    return errorResponse(res, 'No update fields provided', 400)
   }
 
   values.push(id)
@@ -97,5 +97,5 @@ export const handler = async (event) => {
   `
 
   const result = await pool.query(statement, values)
-  return jsonResponse(formatField(result.rows[0]))
+  return jsonResponse(res, formatField(result.rows[0]))
 }

@@ -1,6 +1,6 @@
 # Shamba Records Assessment — SmartSeason Field Monitoring
 
-React (Vite) + Netlify Functions + Neon PostgreSQL. Two roles (**admin**, **agent**): admins manage fields and assignments; agents record observations on assigned fields.
+React (Vite) + Vercel API + Neon PostgreSQL. Two roles (**admin**, **agent**): admins manage fields and assignments; agents record observations on assigned fields.
 
 ## Setup Instructions
 
@@ -8,12 +8,12 @@ React (Vite) + Netlify Functions + Neon PostgreSQL. Two roles (**admin**, **agen
 2. Run `npm install`.
 3. Create a `.env` from `.env.example` and set `DATABASE_URL` and `JWT_SECRET` (do not commit secrets).
 4. Run the SQL schema in `DEVELOPMENT_PLAN.md` against your Neon database.
-5. Run `npm run dev` for the UI only, or `netlify dev` so the app and `/.netlify/functions` share one origin; set `VITE_API_BASE_URL` accordingly (see `.env.example`).
+5. Run `npm run dev` for the UI only, or `vercel dev` so the app and `/api` share one origin; set `VITE_API_BASE_URL` accordingly (see `.env.example`).
 6. Seed demo users and sample data with `npm run seed` when your database is empty.
 
 ## Design Decisions
 
-- Netlify Functions were chosen over Express to keep deployment simple and serverless.
+- Vercel API was chosen over Express to keep deployment simple and serverless.
 - Raw `pg` queries are used instead of an ORM for transparency and a small codebase.
 - JWT is stored in `localStorage`, which is acceptable for this assessment scope.
 - Field status (Active / At Risk / Completed) is computed from stage, planting age, and last activity (latest field update, or field creation when there are no updates), not stored as a column, to avoid stale data.

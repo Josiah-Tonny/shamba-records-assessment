@@ -1,7 +1,7 @@
 /* global process */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { jsonResponse, errorResponse, pool } from './shared.js'
+import { jsonResponse, errorResponse, pool, optionsResponse } from '../api/_shared.js'
 
 const JWT_EXPIRES_IN = '8h'
 
@@ -19,32 +19,32 @@ function createToken(user) {
 }
 
 // HIGH-RISK: Auth/sensitive data handler — requires human review before merge
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return optionsResponse()
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return optionsResponse(res)
   }
 
-  if (event.httpMethod !== 'POST') {
-    return errorResponse('Method not allowed', 405)
+  if (req.method !== 'POST') {
+    return errorResponse(res, 'Method not allowed', 405)
   }
 
-  if (!event.body) {
-    return errorResponse('Missing request body', 400)
+  if (!req.body) {
+    return errorResponse(res, 'Missing request body', 400)
   }
 
-  const { name, email, password } = JSON.parse(event.body)
+  const { name, email, password } = req.body
   if (!name || !email || !password) {
-    return errorResponse('Name, email, and password are required', 400)
+    return errorResponse(res, 'Name, email, and password are required', 400)
   }
 
   if (!process.env.JWT_SECRET) {
-    return errorResponse('JWT secret not configured', 500)
+    return errorResponse(res, 'JWT secret not configured', 500)
   }
 
   const lowerEmail = email.toLowerCase()
   const exists = await pool.query('SELECT id FROM users WHERE email = $1', [lowerEmail])
   if (exists.rowCount > 0) {
-    return errorResponse('Email already registered', 409)
+    return errorResponse(res, 'Email already registered', 409)
   }
 
   const hashedPassword = await bcrypt.hash(password, 10)
@@ -53,7 +53,7 @@ export const handler = async (event) => {
   const user = result.rows[0]
   const token = createToken(user)
 
-  return jsonResponse({
+  return jsonResponse(res, {
     token,
     user,
   })

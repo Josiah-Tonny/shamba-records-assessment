@@ -4,10 +4,10 @@ const apiBaseUrl = (() => {
   if (typeof window !== 'undefined' && normalized.includes('localhost')) {
     const hostname = window.location.hostname
     if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return '/.netlify/functions'
+      return '/api'
     }
   }
-  return normalized || '/.netlify/functions'
+  return normalized || '/api'
 })()
 
 function jsonResponse(response) {

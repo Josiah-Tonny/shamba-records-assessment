@@ -14,28 +14,20 @@ const DEFAULT_HEADERS = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 }
 
-function jsonResponse(payload, statusCode = 200) {
-  return {
-    statusCode,
-    headers: DEFAULT_HEADERS,
-    body: JSON.stringify(payload),
-  }
+function jsonResponse(res, payload, statusCode = 200) {
+  res.status(statusCode).set(DEFAULT_HEADERS).json(payload)
 }
 
-function errorResponse(message, statusCode = 400) {
-  return jsonResponse({ error: message }, statusCode)
+function errorResponse(res, message, statusCode = 400) {
+  jsonResponse(res, { error: message }, statusCode)
 }
 
-function optionsResponse() {
-  return {
-    statusCode: 204,
-    headers: DEFAULT_HEADERS,
-    body: '',
-  }
+function optionsResponse(res) {
+  res.status(204).set(DEFAULT_HEADERS).end()
 }
 
-function getBearerToken(event) {
-  const authHeader = event.headers?.authorization || event.headers?.Authorization
+function getBearerToken(req) {
+  const authHeader = req.headers?.authorization || req.headers?.Authorization
   if (!authHeader || typeof authHeader !== 'string') {
     return null
   }
@@ -44,8 +36,8 @@ function getBearerToken(event) {
 }
 
 // HIGH-RISK: Auth/sensitive data handler — requires human review before merge
-function verifyRequest(event) {
-  const token = getBearerToken(event)
+function verifyRequest(req) {
+  const token = getBearerToken(req)
   if (!token) {
     throw new Error('Missing authorization token')
   }

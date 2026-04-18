@@ -1,7 +1,7 @@
 /* global process */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { jsonResponse, errorResponse, pool } from './shared.js'
+import { jsonResponse, errorResponse, pool, optionsResponse } from '../api/_shared.js'
 
 const JWT_EXPIRES_IN = '8h'
 
@@ -19,43 +19,43 @@ function createToken(user) {
 }
 
 // HIGH-RISK: Auth/sensitive data handler — requires human review before merge
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return optionsResponse()
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return optionsResponse(res)
   }
 
-  if (event.httpMethod !== 'POST') {
-    return errorResponse('Method not allowed', 405)
+  if (req.method !== 'POST') {
+    return errorResponse(res, 'Method not allowed', 405)
   }
 
-  if (!event.body) {
-    return errorResponse('Missing request body', 400)
+  if (!req.body) {
+    return errorResponse(res, 'Missing request body', 400)
   }
 
-  const { email, password } = JSON.parse(event.body)
+  const { email, password } = req.body
   if (!email || !password) {
-    return errorResponse('Email and password are required', 400)
+    return errorResponse(res, 'Email and password are required', 400)
   }
 
   if (!process.env.JWT_SECRET) {
-    return errorResponse('JWT secret not configured', 500)
+    return errorResponse(res, 'JWT secret not configured', 500)
   }
 
   const query = 'SELECT id, name, email, password, role FROM users WHERE email = $1'
   const result = await pool.query(query, [email.toLowerCase()])
 
   if (result.rowCount === 0) {
-    return errorResponse('Invalid credentials', 401)
+    return errorResponse(res, 'Invalid credentials', 401)
   }
 
   const user = result.rows[0]
   const isValid = await bcrypt.compare(password, user.password)
   if (!isValid) {
-    return errorResponse('Invalid credentials', 401)
+    return errorResponse(res, 'Invalid credentials', 401)
   }
 
   const token = createToken(user)
-  return jsonResponse({
+  return jsonResponse(res, {
     token,
     user: {
       id: user.id,

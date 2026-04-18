@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest } from './shared.js'
+import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from '../api/_shared.js'
 
 function formatField(row) {
   return {
@@ -14,34 +14,34 @@ function formatField(row) {
   }
 }
 
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return optionsResponse()
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return optionsResponse(res)
   }
 
-  if (event.httpMethod !== 'POST') {
-    return errorResponse('Method not allowed', 405)
+  if (req.method !== 'POST') {
+    return errorResponse(res, 'Method not allowed', 405)
   }
 
   let user
   try {
-    user = verifyRequest(event)
+    user = verifyRequest(req)
   } catch (error) {
-    return errorResponse(error.message, 401)
+    return errorResponse(res, error.message, 401)
   }
 
   if (user.role !== 'admin') {
-    return errorResponse('Admin access required', 403)
+    return errorResponse(res, 'Admin access required', 403)
   }
 
-  if (!event.body) {
-    return errorResponse('Missing request body', 400)
+  if (!req.body) {
+    return errorResponse(res, 'Missing request body', 400)
   }
 
-  const { name, cropType, plantingDate, stage = 'Planted', assignedTo } = JSON.parse(event.body)
+  const { name, cropType, plantingDate, stage = 'Planted', assignedTo } = req.body
 
   if (!name || !cropType || !plantingDate) {
-    return errorResponse('Name, crop type, and planting date are required', 400)
+    return errorResponse(res, 'Name, crop type, and planting date are required', 400)
   }
 
   const statement = `
@@ -53,5 +53,5 @@ export const handler = async (event) => {
   const result = await pool.query(statement, [name, cropType, plantingDate, stage, assignedTo || null, user.id])
   const field = result.rows[0]
 
-  return jsonResponse(formatField(field), 201)
+  return jsonResponse(res, formatField(field), 201)
 }

@@ -1,22 +1,22 @@
-import { jsonResponse, errorResponse, pool, verifyRequest } from './shared.js'
+import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from '../api/_shared.js'
 
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return optionsResponse()
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return optionsResponse(res)
   }
 
-  if (event.httpMethod !== 'GET') {
-    return errorResponse('Method not allowed', 405)
+  if (req.method !== 'GET') {
+    return errorResponse(res, 'Method not allowed', 405)
   }
 
   let user
   try {
-    user = verifyRequest(event)
+    user = verifyRequest(req)
   } catch (error) {
-    return errorResponse(error.message, 401)
+    return errorResponse(res, error.message, 401)
   }
 
-  const fieldId = event.queryStringParameters?.fieldId
+  const fieldId = req.query?.fieldId
 
   const values = []
   const filters = []
@@ -72,5 +72,5 @@ export const handler = async (event) => {
     lastUpdateAt: row.last_activity_at ? row.last_activity_at.toISOString() : null,
   }))
 
-  return jsonResponse(fields)
+  return jsonResponse(res, fields)
 }
