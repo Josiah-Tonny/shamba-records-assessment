@@ -11,9 +11,25 @@ const apiBaseUrl = (() => {
 })()
 
 function jsonResponse(response) {
-  return response.json().then((data) => {
+  return response.text().then((text) => {
+    // Handle non-JSON responses
+    if (!text || text.trim() === '') {
+      throw new Error('Empty response from server')
+    }
+    
+    let data
+    try {
+      data = JSON.parse(text)
+    } catch (parseError) {
+      // If JSON parsing fails, the server likely returned an HTML error page
+      if (response.status === 500) {
+        throw new Error('Server error: Please check if the database is properly configured')
+      }
+      throw new Error(`Invalid response from server: ${text.substring(0, 100)}...`)
+    }
+    
     if (!response.ok) {
-      throw new Error(data?.error || 'Request failed')
+      throw new Error(data?.error || `Server error: ${response.status}`)
     }
     return data
   })

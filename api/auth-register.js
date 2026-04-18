@@ -41,20 +41,25 @@ export default async function handler(req, res) {
     return errorResponse(res, 'JWT secret not configured', 500)
   }
 
-  const lowerEmail = email.toLowerCase()
-  const exists = await pool.query('SELECT id FROM users WHERE email = $1', [lowerEmail])
-  if (exists.rowCount > 0) {
-    return errorResponse(res, 'Email already registered', 409)
+  try {
+    const lowerEmail = email.toLowerCase()
+    const exists = await pool.query('SELECT id FROM users WHERE email = $1', [lowerEmail])
+    if (exists.rowCount > 0) {
+      return errorResponse(res, 'Email already registered', 409)
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+    const statement = 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role'
+    const result = await pool.query(statement, [name, lowerEmail, hashedPassword, 'agent'])
+    const user = result.rows[0]
+    const token = createToken(user)
+
+    return jsonResponse(res, {
+      token,
+      user,
+    })
+  } catch (error) {
+    console.error('Registration error:', error)
+    return errorResponse(res, 'Internal server error', 500)
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10)
-  const statement = 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role'
-  const result = await pool.query(statement, [name, lowerEmail, hashedPassword, 'agent'])
-  const user = result.rows[0]
-  const token = createToken(user)
-
-  return jsonResponse(res, {
-    token,
-    user,
-  })
 }

@@ -29,10 +29,15 @@ export default async function handler(req, res) {
     return errorResponse(res, 'Field id is required', 400)
   }
 
-  const result = await pool.query('DELETE FROM fields WHERE id = $1', [id])
-  if (result.rowCount === 0) {
-    return errorResponse(res, 'Field not found', 404)
-  }
+  try {
+    const result = await pool.query('DELETE FROM fields WHERE id = $1', [id])
+    if (result.rowCount === 0) {
+      return errorResponse(res, 'Field not found', 404)
+    }
 
-  return jsonResponse(res, { success: true })
+    return jsonResponse(res, { success: true })
+  } catch (error) {
+    console.error('Fields delete error:', error)
+    return errorResponse(res, 'Internal server error', 500)
+  }
 }

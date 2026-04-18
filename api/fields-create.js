@@ -44,14 +44,19 @@ export default async function handler(req, res) {
     return errorResponse(res, 'Name, crop type, and planting date are required', 400)
   }
 
-  const statement = `
-    INSERT INTO fields (name, crop_type, planting_date, stage, assigned_to, created_by)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING id, name, crop_type, planting_date, stage, assigned_to, created_by, created_at, updated_at
-  `
+  try {
+    const statement = `
+      INSERT INTO fields (name, crop_type, planting_date, stage, assigned_to, created_by)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, name, crop_type, planting_date, stage, assigned_to, created_by, created_at, updated_at
+    `
 
-  const result = await pool.query(statement, [name, cropType, plantingDate, stage, assignedTo || null, user.id])
-  const field = result.rows[0]
+    const result = await pool.query(statement, [name, cropType, plantingDate, stage, assignedTo || null, user.id])
+    const field = result.rows[0]
 
-  return jsonResponse(res, formatField(field), 201)
+    return jsonResponse(res, formatField(field), 201)
+  } catch (error) {
+    console.error('Fields create error:', error)
+    return errorResponse(res, 'Internal server error', 500)
+  }
 }

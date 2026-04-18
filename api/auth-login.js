@@ -41,27 +41,32 @@ export default async function handler(req, res) {
     return errorResponse(res, 'JWT secret not configured', 500)
   }
 
-  const query = 'SELECT id, name, email, password, role FROM users WHERE email = $1'
-  const result = await pool.query(query, [email.toLowerCase()])
+  try {
+    const query = 'SELECT id, name, email, password, role FROM users WHERE email = $1'
+    const result = await pool.query(query, [email.toLowerCase()])
 
-  if (result.rowCount === 0) {
-    return errorResponse(res, 'Invalid credentials', 401)
+    if (result.rowCount === 0) {
+      return errorResponse(res, 'Invalid credentials', 401)
+    }
+
+    const user = result.rows[0]
+    const isValid = await bcrypt.compare(password, user.password)
+    if (!isValid) {
+      return errorResponse(res, 'Invalid credentials', 401)
+    }
+
+    const token = createToken(user)
+    return jsonResponse(res, {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    })
+  } catch (error) {
+    console.error('Login error:', error)
+    return errorResponse(res, 'Internal server error', 500)
   }
-
-  const user = result.rows[0]
-  const isValid = await bcrypt.compare(password, user.password)
-  if (!isValid) {
-    return errorResponse(res, 'Invalid credentials', 401)
-  }
-
-  const token = createToken(user)
-  return jsonResponse(res, {
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-  })
 }
