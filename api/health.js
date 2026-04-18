@@ -1,5 +1,6 @@
 /* global process */
-import { jsonResponse, errorResponse, getPool, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, optionsResponse } from './_shared.js'
+import { getPool } from './database.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
