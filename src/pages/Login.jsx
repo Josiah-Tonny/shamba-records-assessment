@@ -1,107 +1,104 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { loginUser } from '../api/authApi.js'
-import { useAuth } from '../hooks/useAuth.jsx'
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-export default function Login() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const { login, error } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setError('')
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
-    if (!email || !password) {
-      setError('Email and password are required.')
-      return
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const result = await loginUser({ email, password })
-      login({ token: result.token, user: result.user })
-      navigate('/dashboard', { replace: true })
+      await login(formData.email, formData.password);
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Unable to login at this time.')
+      // Error is handled by AuthContext
+    } finally {
+      setLoading(false);
     }
-  }
-
-  const fillDemoCredentials = (demo) => {
-    if (window.confirm(`Fill the form with ${demo.name} credentials?`)) {
-      setEmail(demo.email)
-      setPassword(demo.password)
-    }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-semibold text-slate-900">Login</h1>
-        <p className="mt-2 text-sm text-slate-600">Enter your credentials to continue.</p>
-
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-medium text-slate-500">Demo credentials</p>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => fillDemoCredentials({ name: 'admin', email: 'admin@smartseason.com', password: 'admin123' })}
-              className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
-            >
-              Use admin demo
-            </button>
-            <button
-              type="button"
-              onClick={() => fillDemoCredentials({ name: 'agent', email: 'agent@smartseason.com', password: 'agent123' })}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-            >
-              Use agent demo
-            </button>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              create a new account
+            </Link>
+          </p>
         </div>
-
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Email</span>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
               <input
+                id="email"
+                name="email"
                 type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-                placeholder="you@example.com"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={formData.email}
+                onChange={handleChange}
               />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Password</span>
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <input
+                id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-                placeholder="••••••••"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
               />
-            </label>
+            </div>
           </div>
 
-          {error && <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
+          {error && (
+            <div className="text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-          >
-            Continue
-          </button>
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </div>
         </form>
-
-        <p className="mt-6 text-center text-sm text-slate-600">
-          New to the app?{' '}
-          <Link to="/register" className="font-semibold text-slate-900 underline offset-2 hover:text-slate-700">
-            Register
-          </Link>
-        </p>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Login;

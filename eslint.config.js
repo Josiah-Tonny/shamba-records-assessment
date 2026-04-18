@@ -5,27 +5,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', '.netlify']),
-  {
-    files: ['**/*.test.js'],
-    extends: [js.configs.recommended],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.node,
-      sourceType: 'module',
-    },
-  },
-  {
-    files: ['scripts/**/*.js'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.node,
-      sourceType: 'module',
-    },
-  },
+  globalIgnores(['dist']),
   {
     files: ['**/*.{js,jsx}'],
-    ignores: ['**/*.test.js'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
