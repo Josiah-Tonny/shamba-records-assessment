@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "netlify-dev": "netlify dev",
+    "netlify-dev": "netlify dev --port 5174",
     "build": "vite build",
     "lint": "eslint .",
     "test": "node --test src/utils/statusLogic.test.js",

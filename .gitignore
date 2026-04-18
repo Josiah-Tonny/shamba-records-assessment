@@ -29,3 +29,5 @@ INSTRUCTIONS.md
 DEVELOPMENT_PLAN.md
 
 scripts
+# Local Netlify folder
+.netlify
