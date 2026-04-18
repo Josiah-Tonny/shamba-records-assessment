@@ -73,5 +73,7 @@ export default async function handler(req, res) {
     })
   } catch (error) {
     console.error('Login error:', error.message, error.stack)
-    return errorResponse(res, 'Internal server error', 500)  }
+    // Return specific error message for debugging
+    return errorResponse(res, `Database error: ${error.message}`, 500)
+  }
 }

@@ -59,7 +59,11 @@ export default async function handler(req, res) {
       user,
     })
   } catch (error) {
-    console.error('Registration error:', error)
+    console.error('Registration error:', error.message, error.stack)
+    // Handle PostgreSQL unique constraint violation (23505) - email already exists
+    if (error.code === '23505' || error.message?.includes('unique constraint')) {
+      return errorResponse(res, 'Email already registered', 409)
+    }
     return errorResponse(res, 'Internal server error', 500)
   }
 }
