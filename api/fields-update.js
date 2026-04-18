@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 function formatField(row) {
   return {
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       return errorResponse(res, 'Field id is required', 400)
     }
 
-    const fieldResult = await pool.query('SELECT assigned_to FROM fields WHERE id = $1', [id])
+    const fieldResult = await getPool().query('SELECT assigned_to FROM fields WHERE id = $1', [id])
     if (fieldResult.rowCount === 0) {
       return errorResponse(res, 'Field not found', 404)
     }
@@ -97,7 +97,7 @@ export default async function handler(req, res) {
       RETURNING id, name, crop_type, planting_date, stage, assigned_to, created_by, created_at, updated_at
     `
 
-    const result = await pool.query(statement, values)
+    const result = await getPool().query(statement, values)
     return jsonResponse(res, formatField(result.rows[0]))
   } catch (error) {
     console.error('Fields update error:', error)

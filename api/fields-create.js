@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 function formatField(row) {
   return {
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
       RETURNING id, name, crop_type, planting_date, stage, assigned_to, created_by, created_at, updated_at
     `
 
-    const result = await pool.query(statement, [name, cropType, plantingDate, stage, assignedTo || null, user.id])
+    const result = await getPool().query(statement, [name, cropType, plantingDate, stage, assignedTo || null, user.id])
     const field = result.rows[0]
 
     return jsonResponse(res, formatField(field), 201)

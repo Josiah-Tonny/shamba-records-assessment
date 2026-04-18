@@ -2,15 +2,24 @@
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
-// Validate DATABASE_URL at module load time
-if (!process.env.DATABASE_URL) {
-  console.error('ERROR: DATABASE_URL environment variable is not set')
-}
+// Lazy pool initialization for Vercel serverless environment
+let pool = null
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-})
+function getPool() {
+  if (!pool) {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL environment variable is not set')
+    }
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 10, // Limit connections for serverless
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    })
+  }
+  return pool
+}
 
 const DEFAULT_HEADERS = {
   'Content-Type': 'application/json',
@@ -54,4 +63,4 @@ function verifyRequest(req) {
   return jwt.verify(token, process.env.JWT_SECRET)
 }
 
-export { pool, jsonResponse, errorResponse, verifyRequest, optionsResponse }
+export { getPool, jsonResponse, errorResponse, verifyRequest, optionsResponse }

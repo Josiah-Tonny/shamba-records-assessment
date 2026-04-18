@@ -20,7 +20,7 @@ function jsonResponse(response) {
     let data
     try {
       data = JSON.parse(text)
-    } catch (parseError) {
+    } catch {
       // If JSON parsing fails, the server likely returned an HTML error page
       if (response.status === 500) {
         throw new Error('Server error: Please check if the database is properly configured')

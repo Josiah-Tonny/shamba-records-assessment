@@ -1,7 +1,7 @@
 /* global process */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { jsonResponse, errorResponse, pool, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, optionsResponse } from './_shared.js'
 
 const JWT_EXPIRES_IN = '8h'
 
@@ -38,12 +38,18 @@ export default async function handler(req, res) {
   }
 
   if (!process.env.JWT_SECRET) {
+    console.error('Login error: JWT_SECRET not configured')
     return errorResponse(res, 'JWT secret not configured', 500)
+  }
+
+  if (!process.env.DATABASE_URL) {
+    console.error('Login error: DATABASE_URL not configured')
+    return errorResponse(res, 'Database not configured', 500)
   }
 
   try {
     const query = 'SELECT id, name, email, password, role FROM users WHERE email = $1'
-    const result = await pool.query(query, [email.toLowerCase()])
+    const result = await getPool().query(query, [email.toLowerCase()])
 
     if (result.rowCount === 0) {
       return errorResponse(res, 'Invalid credentials', 401)
@@ -66,7 +72,6 @@ export default async function handler(req, res) {
       },
     })
   } catch (error) {
-    console.error('Login error:', error)
-    return errorResponse(res, 'Internal server error', 500)
-  }
+    console.error('Login error:', error.message, error.stack)
+    return errorResponse(res, 'Internal server error', 500)  }
 }

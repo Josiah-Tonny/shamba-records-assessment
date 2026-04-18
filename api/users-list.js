@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const result = await pool.query('SELECT id, name, email, role FROM users ORDER BY name')
+    const result = await getPool().query('SELECT id, name, email, role FROM users ORDER BY name')
     return jsonResponse(res, result.rows)
   } catch (error) {
     console.error('Users list error:', error)

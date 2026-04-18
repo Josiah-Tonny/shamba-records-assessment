@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const result = await pool.query('DELETE FROM fields WHERE id = $1', [id])
+    const result = await getPool().query('DELETE FROM fields WHERE id = $1', [id])
     if (result.rowCount === 0) {
       return errorResponse(res, 'Field not found', 404)
     }

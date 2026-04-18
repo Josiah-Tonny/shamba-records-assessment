@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const fieldResult = await pool.query('SELECT assigned_to FROM fields WHERE id = $1', [fieldId])
+    const fieldResult = await getPool().query('SELECT assigned_to FROM fields WHERE id = $1', [fieldId])
     if (fieldResult.rowCount === 0) {
       return errorResponse(res, 'Field not found', 404)
     }
@@ -44,10 +44,10 @@ export default async function handler(req, res) {
       VALUES ($1, $2, $3, $4)
       RETURNING id, field_id, agent_id, stage, notes, created_at
     `
-    const result = await pool.query(statement, [fieldId, user.id, stage, notes || null])
+    const result = await getPool().query(statement, [fieldId, user.id, stage, notes || null])
     const update = result.rows[0]
 
-    await pool.query('UPDATE fields SET stage = $1, updated_at = NOW() WHERE id = $2', [stage, fieldId])
+    await getPool().query('UPDATE fields SET stage = $1, updated_at = NOW() WHERE id = $2', [stage, fieldId])
 
     return jsonResponse(res, {
       id: update.id,

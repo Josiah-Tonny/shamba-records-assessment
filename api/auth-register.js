@@ -1,7 +1,7 @@
 /* global process */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { jsonResponse, errorResponse, pool, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, optionsResponse } from './_shared.js'
 
 const JWT_EXPIRES_IN = '8h'
 
@@ -43,14 +43,14 @@ export default async function handler(req, res) {
 
   try {
     const lowerEmail = email.toLowerCase()
-    const exists = await pool.query('SELECT id FROM users WHERE email = $1', [lowerEmail])
+    const exists = await getPool().query('SELECT id FROM users WHERE email = $1', [lowerEmail])
     if (exists.rowCount > 0) {
       return errorResponse(res, 'Email already registered', 409)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
     const statement = 'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role'
-    const result = await pool.query(statement, [name, lowerEmail, hashedPassword, 'agent'])
+    const result = await getPool().query(statement, [name, lowerEmail, hashedPassword, 'agent'])
     const user = result.rows[0]
     const token = createToken(user)
 

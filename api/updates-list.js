@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const fieldResult = await pool.query('SELECT assigned_to FROM fields WHERE id = $1', [fieldId])
+    const fieldResult = await getPool().query('SELECT assigned_to FROM fields WHERE id = $1', [fieldId])
     if (fieldResult.rowCount === 0) {
       return errorResponse(res, 'Field not found', 404)
     }
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       ORDER BY fu.created_at DESC
     `
 
-    const result = await pool.query(statement, [fieldId])
+    const result = await getPool().query(statement, [fieldId])
     const updates = result.rows.map((row) => ({
       id: row.id,
       fieldId: row.field_id,

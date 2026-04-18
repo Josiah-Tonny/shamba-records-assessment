@@ -69,7 +69,7 @@ async function fetchFromApi(path, token, method = 'GET', body = null) {
   let data
   try {
     data = JSON.parse(text)
-  } catch (parseError) {
+  } catch {
     if (response.status === 500) {
       throw new Error('Server error: Please check if the database is properly configured')
     }

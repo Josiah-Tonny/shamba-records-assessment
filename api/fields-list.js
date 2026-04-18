@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
+import { jsonResponse, errorResponse, getPool, verifyRequest, optionsResponse } from './_shared.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
     query += ' ORDER BY f.planting_date DESC NULLS LAST'
 
-    const result = await pool.query(query, values)
+    const result = await getPool().query(query, values)
     const fields = result.rows.map((row) => ({
       id: row.id,
       name: row.name,
