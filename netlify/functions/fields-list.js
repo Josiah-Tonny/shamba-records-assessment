@@ -15,30 +15,43 @@ export const handler = async (event) => {
   const fieldId = event.queryStringParameters?.fieldId
 
   const values = []
+  const filters = []
+
   let query = `
     SELECT
-      id,
-      name,
-      crop_type,
-      planting_date,
-      stage,
-      assigned_to,
-      created_by,
-      updated_at
-    FROM fields
+      f.id,
+      f.name,
+      f.crop_type,
+      f.planting_date,
+      f.stage,
+      f.assigned_to,
+      u.name AS assigned_to_name,
+      f.created_by,
+      f.created_at,
+      f.updated_at,
+      COALESCE(
+        (SELECT MAX(fu.created_at) FROM field_updates fu WHERE fu.field_id = f.id),
+        f.created_at
+      ) AS last_activity_at
+    FROM fields f
+    LEFT JOIN users u ON u.id = f.assigned_to
   `
 
   if (user.role === 'agent') {
     values.push(user.id)
-    query += ` WHERE assigned_to = $${values.length}`
+    filters.push(`f.assigned_to = $${values.length}`)
   }
 
   if (fieldId) {
     values.push(fieldId)
-    query += values.length === 1 ? ` WHERE id = $${values.length}` : ` AND id = $${values.length}`
+    filters.push(`f.id = $${values.length}`)
   }
 
-  query += ' ORDER BY planting_date DESC NULLS LAST'
+  if (filters.length > 0) {
+    query += ` WHERE ${filters.join(' AND ')}`
+  }
+
+  query += ' ORDER BY f.planting_date DESC NULLS LAST'
 
   const result = await pool.query(query, values)
   const fields = result.rows.map((row) => ({
@@ -48,8 +61,11 @@ export const handler = async (event) => {
     plantingDate: row.planting_date ? row.planting_date.toISOString().substring(0, 10) : null,
     stage: row.stage,
     assignedTo: row.assigned_to,
+    assignedToName: row.assigned_to_name,
     createdBy: row.created_by,
-    updatedAt: row.updated_at ? row.updated_at.toISOString().substring(0, 10) : null,
+    createdAt: row.created_at ? row.created_at.toISOString() : null,
+    updatedAt: row.updated_at ? row.updated_at.toISOString() : null,
+    lastUpdateAt: row.last_activity_at ? row.last_activity_at.toISOString() : null,
   }))
 
   return jsonResponse(fields)

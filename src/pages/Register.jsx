@@ -33,7 +33,9 @@ export default function Register() {
     <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-semibold text-slate-900">Register</h1>
-        <p className="mt-2 text-sm text-slate-600">Create an account to start tracking fields.</p>
+        <p className="mt-2 text-sm text-slate-600">
+          Create an account to start tracking fields. New accounts are registered as field agents.
+        </p>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">

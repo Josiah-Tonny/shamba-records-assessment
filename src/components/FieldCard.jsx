@@ -20,7 +20,8 @@ export default function FieldCard({ field, status }) {
           <span className="font-semibold text-slate-900">Planted:</span> {field.plantingDate}
         </p>
         <p>
-          <span className="font-semibold text-slate-900">Assigned:</span> {field.assignedTo}
+          <span className="font-semibold text-slate-900">Assigned:</span>{' '}
+          {field.assignedToName || field.assignedTo || 'Unassigned'}
         </p>
       </div>
 

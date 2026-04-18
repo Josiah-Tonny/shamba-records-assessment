@@ -30,7 +30,7 @@ const sampleFields = [
   },
 ]
 
-async function fetchFromApi(path, token) {
+async function fetchFromApi(path, token, method = 'GET', body = null) {
   if (!apiBaseUrl) {
     throw new Error('API base URL is not configured')
   }
@@ -43,7 +43,12 @@ async function fetchFromApi(path, token) {
     headers.Authorization = `Bearer ${token}`
   }
 
-  const response = await fetch(`${apiBaseUrl}/${path}`, { headers })
+  const response = await fetch(`${apiBaseUrl}/${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  })
+
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`)
   }
@@ -52,18 +57,40 @@ async function fetchFromApi(path, token) {
 }
 
 export async function fetchFields(token) {
-  try {
-    return await fetchFromApi('fields-list', token)
-  } catch (error) {
+  if (!apiBaseUrl) {
     return sampleFields
   }
+  return fetchFromApi('fields-list', token)
 }
 
 export async function fetchFieldById(id, token) {
-  try {
-    const data = await fetchFromApi(`fields-list?fieldId=${encodeURIComponent(id)}`, token)
-    return data?.find((field) => field.id === id) ?? null
-  } catch (error) {
+  if (!apiBaseUrl) {
     return sampleFields.find((field) => field.id === id) ?? null
   }
+  const data = await fetchFromApi(`fields-list?fieldId=${encodeURIComponent(id)}`, token)
+  return data?.find((field) => field.id === id) ?? null
+}
+
+export async function createField(field, token) {
+  return fetchFromApi('fields-create', token, 'POST', field)
+}
+
+export async function updateField(field, token) {
+  return fetchFromApi('fields-update', token, 'PUT', field)
+}
+
+export async function deleteField(id, token) {
+  return fetchFromApi('fields-delete', token, 'DELETE', { id })
+}
+
+export async function fetchFieldUpdates(fieldId, token) {
+  return fetchFromApi(`updates-list?fieldId=${encodeURIComponent(fieldId)}`, token)
+}
+
+export async function addFieldUpdate(fieldId, update, token) {
+  return fetchFromApi('updates-add', token, 'POST', { fieldId, ...update })
+}
+
+export async function fetchUsers(token) {
+  return fetchFromApi('users-list', token)
 }

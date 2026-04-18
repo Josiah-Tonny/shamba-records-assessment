@@ -11,10 +11,10 @@ function daysBetween(start, end) {
 }
 
 export function computeFieldStatus(field) {
-  const { stage, plantingDate, lastUpdateAt } = field
+  const { stage, plantingDate, lastUpdateAt, updatedAt } = field
   const today = new Date()
   const planted = parseDate(plantingDate)
-  const lastUpdate = parseDate(lastUpdateAt)
+  const lastUpdate = parseDate(lastUpdateAt || updatedAt)
 
   if (stage === 'Harvested') {
     return 'Completed'

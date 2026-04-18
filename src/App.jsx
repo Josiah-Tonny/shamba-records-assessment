@@ -1,8 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import RoleRoute from './components/RoleRoute.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import FieldDetail from './pages/FieldDetail.jsx'
+import FieldForm from './pages/FieldForm.jsx'
 import Fields from './pages/Fields.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
@@ -17,6 +19,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/fields" element={<Fields />} />
+            <Route element={<RoleRoute allow={['admin']} />}>
+              <Route path="/fields/new" element={<FieldForm />} />
+              <Route path="/fields/:id/edit" element={<FieldForm />} />
+            </Route>
             <Route path="/fields/:id" element={<FieldDetail />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

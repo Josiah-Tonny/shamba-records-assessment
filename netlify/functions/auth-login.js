@@ -1,3 +1,4 @@
+/* global process */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { jsonResponse, errorResponse, pool } from './shared.js'
@@ -17,6 +18,7 @@ function createToken(user) {
   )
 }
 
+// HIGH-RISK: Auth/sensitive data handler — requires human review before merge
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return errorResponse('Method not allowed', 405)

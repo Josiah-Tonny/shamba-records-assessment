@@ -1,16 +1,56 @@
-# React + Vite
+# Shamba Records Assessment — SmartSeason Field Monitoring
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React (Vite) + Netlify Functions + Neon PostgreSQL. Two roles (**admin**, **agent**): admins manage fields and assignments; agents record observations on assigned fields.
 
-Currently, two official plugins are available:
+## Setup Instructions
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc/blob/main/packages/vite-plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Clone the repository.
+2. Run `npm install`.
+3. Create a `.env` from `.env.example` and set `DATABASE_URL` and `JWT_SECRET` (do not commit secrets).
+4. Run the SQL schema in `DEVELOPMENT_PLAN.md` against your Neon database.
+5. Run `npm run dev` for the UI only, or `netlify dev` so the app and `/.netlify/functions` share one origin; set `VITE_API_BASE_URL` accordingly (see `.env.example`).
+6. Seed demo users and sample data with `npm run seed` when your database is empty.
 
-## React Compiler
+## Design Decisions
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Netlify Functions were chosen over Express to keep deployment simple and serverless.
+- Raw `pg` queries are used instead of an ORM for transparency and a small codebase.
+- JWT is stored in `localStorage`, which is acceptable for this assessment scope.
+- Field status (Active / At Risk / Completed) is computed from stage, planting age, and last activity (latest field update, or field creation when there are no updates), not stored as a column, to avoid stale data.
 
-## Expanding the ESLint configuration
+## Field Status Logic
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [	ypescript-eslint](https://typescript-eslint.io) in your project.
+- **Completed:** stage is `Harvested`.
+- **At Risk:** not harvested **and** (age over 120 days **or** no update in 14 days, using last activity from the API).
+- **Active:** all other fields.
+
+## Assumptions
+
+- Only admins can create fields and assign agents.
+- Agents can only update their assigned fields (observations via `updates-add`; stage-only edits via `fields-update` are restricted server-side).
+- Registration defaults new users to the **agent** role.
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Vite dev server. |
+| `npm run build` | Production build to `dist/`. |
+| `npm run lint` | ESLint. |
+| `npm test` | Node test runner (`statusLogic`). |
+| `npm run seed` | Seed users, fields, and updates (requires `DATABASE_URL`). |
+
+## Demo credentials
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | admin@smartseason.com | admin123 |
+| Agent | agent@smartseason.com | agent123 |
+
+## CI
+
+GitHub Actions runs `npm ci`, lint, tests, and production build on push and pull request (see `.github/workflows/ci.yml`).
+
+## TypeScript note
+
+The reference plan mentions a TypeScript template; this repository uses **JavaScript** for the Vite app and functions to keep the assessment small. Quality is enforced with ESLint, tests for shared status logic, and a production build.

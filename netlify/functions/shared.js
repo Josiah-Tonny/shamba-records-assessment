@@ -1,3 +1,4 @@
+/* global process */
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
@@ -29,6 +30,7 @@ function getBearerToken(event) {
   return token || null
 }
 
+// HIGH-RISK: Auth/sensitive data handler — requires human review before merge
 function verifyRequest(event) {
   const token = getBearerToken(event)
   if (!token) {
