@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from '../api/_shared.js'
+import { jsonResponse, errorResponse, pool, verifyRequest, optionsResponse } from './_shared.js'
 
 function formatField(row) {
   return {

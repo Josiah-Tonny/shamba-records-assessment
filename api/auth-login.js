@@ -1,7 +1,7 @@
 /* global process */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { jsonResponse, errorResponse, pool, optionsResponse } from '../api/_shared.js'
+import { jsonResponse, errorResponse, pool, optionsResponse } from './_shared.js'
 
 const JWT_EXPIRES_IN = '8h'
 
