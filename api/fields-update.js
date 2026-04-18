@@ -34,12 +34,12 @@ export default async function handler(req, res) {
     return errorResponse(res, 'Missing request body', 400)
   }
 
-  try {
-    const { id, name, cropType, plantingDate, stage, assignedTo } = req.body
-    if (!id) {
-      return errorResponse(res, 'Field id is required', 400)
-    }
+  const { id, name, cropType, plantingDate, stage, assignedTo } = req.body
+  if (!id) {
+    return errorResponse(res, 'Field id is required', 400)
+  }
 
+  try {
     const fieldResult = await getPool().query('SELECT assigned_to FROM fields WHERE id = $1', [id])
     if (fieldResult.rowCount === 0) {
       return errorResponse(res, 'Field not found', 404)
@@ -100,7 +100,7 @@ export default async function handler(req, res) {
     const result = await getPool().query(statement, values)
     return jsonResponse(res, formatField(result.rows[0]))
   } catch (error) {
-    console.error('Fields update error:', error)
+    console.error('Fields update error:', error.message, error.stack)
     return errorResponse(res, 'Internal server error', 500)
   }
 }

@@ -38,13 +38,7 @@ export default async function handler(req, res) {
   }
 
   if (!process.env.JWT_SECRET) {
-    console.error('Login error: JWT_SECRET not configured')
     return errorResponse(res, 'JWT secret not configured', 500)
-  }
-
-  if (!process.env.DATABASE_URL) {
-    console.error('Login error: DATABASE_URL not configured')
-    return errorResponse(res, 'Database not configured', 500)
   }
 
   try {
@@ -73,7 +67,6 @@ export default async function handler(req, res) {
     })
   } catch (error) {
     console.error('Login error:', error.message, error.stack)
-    // Return specific error message for debugging
-    return errorResponse(res, `Database error: ${error.message}`, 500)
+    return errorResponse(res, 'Database error: ' + error.message, 500)
   }
 }

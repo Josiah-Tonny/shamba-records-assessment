@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
     return jsonResponse(res, formatField(field), 201)
   } catch (error) {
-    console.error('Fields create error:', error)
+    console.error('Fields create error:', error.message, error.stack)
     return errorResponse(res, 'Internal server error', 500)
   }
 }

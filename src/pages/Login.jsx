@@ -29,21 +29,10 @@ export default function Login() {
   }
 
   const fillDemoCredentials = (demo) => {
-    setEmail(demo.email)
-    setPassword(demo.password)
-    
-    // Show notification popup
-    const notification = document.createElement('div')
-    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300'
-    notification.textContent = `Demo credentials filled for ${demo.name}`
-    document.body.appendChild(notification)
-    
-    setTimeout(() => {
-      notification.style.opacity = '0'
-      setTimeout(() => {
-        document.body.removeChild(notification)
-      }, 300)
-    }, 2000)
+    if (window.confirm(`Fill the form with ${demo.name} credentials?`)) {
+      setEmail(demo.email)
+      setPassword(demo.password)
+    }
   }
 
   return (

@@ -37,7 +37,7 @@ export default async function handler(req, res) {
 
     return jsonResponse(res, { success: true })
   } catch (error) {
-    console.error('Fields delete error:', error)
+    console.error('Fields delete error:', error.message, error.stack)
     return errorResponse(res, 'Internal server error', 500)
   }
 }

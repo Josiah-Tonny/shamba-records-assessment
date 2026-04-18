@@ -16,48 +16,48 @@ export default async function handler(req, res) {
     return errorResponse(res, error.message, 401)
   }
 
+  const fieldId = req.query?.fieldId
+
+  const values = []
+  const filters = []
+
+  let query = `
+    SELECT
+      f.id,
+      f.name,
+      f.crop_type,
+      f.planting_date,
+      f.stage,
+      f.assigned_to,
+      u.name AS assigned_to_name,
+      f.created_by,
+      f.created_at,
+      f.updated_at,
+      COALESCE(
+        (SELECT MAX(fu.created_at) FROM field_updates fu WHERE fu.field_id = f.id),
+        f.created_at
+      ) AS last_activity_at
+    FROM fields f
+    LEFT JOIN users u ON u.id = f.assigned_to
+  `
+
+  if (user.role === 'agent') {
+    values.push(user.id)
+    filters.push(`f.assigned_to = $${values.length}`)
+  }
+
+  if (fieldId) {
+    values.push(fieldId)
+    filters.push(`f.id = $${values.length}`)
+  }
+
+  if (filters.length > 0) {
+    query += ` WHERE ${filters.join(' AND ')}`
+  }
+
+  query += ' ORDER BY f.planting_date DESC NULLS LAST'
+
   try {
-    const fieldId = req.query?.fieldId
-
-    const values = []
-    const filters = []
-
-    let query = `
-      SELECT
-        f.id,
-        f.name,
-        f.crop_type,
-        f.planting_date,
-        f.stage,
-        f.assigned_to,
-        u.name AS assigned_to_name,
-        f.created_by,
-        f.created_at,
-        f.updated_at,
-        COALESCE(
-          (SELECT MAX(fu.created_at) FROM field_updates fu WHERE fu.field_id = f.id),
-          f.created_at
-        ) AS last_activity_at
-      FROM fields f
-      LEFT JOIN users u ON u.id = f.assigned_to
-    `
-
-    if (user.role === 'agent') {
-      values.push(user.id)
-      filters.push(`f.assigned_to = $${values.length}`)
-    }
-
-    if (fieldId) {
-      values.push(fieldId)
-      filters.push(`f.id = $${values.length}`)
-    }
-
-    if (filters.length > 0) {
-      query += ` WHERE ${filters.join(' AND ')}`
-    }
-
-    query += ' ORDER BY f.planting_date DESC NULLS LAST'
-
     const result = await getPool().query(query, values)
     const fields = result.rows.map((row) => ({
       id: row.id,
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
 
     return jsonResponse(res, fields)
   } catch (error) {
-    console.error('Fields list error:', error)
+    console.error('Fields list error:', error.message, error.stack)
     return errorResponse(res, 'Internal server error', 500)
   }
 }
