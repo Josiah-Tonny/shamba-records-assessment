@@ -20,6 +20,10 @@ function createToken(user) {
 
 // HIGH-RISK: Auth/sensitive data handler — requires human review before merge
 export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return optionsResponse()
+  }
+
   if (event.httpMethod !== 'POST') {
     return errorResponse('Method not allowed', 405)
   }

@@ -28,11 +28,38 @@ export default function Login() {
     }
   }
 
+  const fillDemoCredentials = (demo) => {
+    if (window.confirm(`Fill the form with ${demo.name} credentials?`)) {
+      setEmail(demo.email)
+      setPassword(demo.password)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-semibold text-slate-900">Login</h1>
         <p className="mt-2 text-sm text-slate-600">Enter your credentials to continue.</p>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium text-slate-500">Demo credentials</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials({ name: 'admin', email: 'admin@smartseason.com', password: 'admin123' })}
+              className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            >
+              Use admin demo
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials({ name: 'agent', email: 'agent@smartseason.com', password: 'agent123' })}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+            >
+              Use agent demo
+            </button>
+          </div>
+        </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">

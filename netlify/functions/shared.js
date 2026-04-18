@@ -7,18 +7,31 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 })
 
+const DEFAULT_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+}
+
 function jsonResponse(payload, statusCode = 200) {
   return {
     statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: DEFAULT_HEADERS,
     body: JSON.stringify(payload),
   }
 }
 
 function errorResponse(message, statusCode = 400) {
   return jsonResponse({ error: message }, statusCode)
+}
+
+function optionsResponse() {
+  return {
+    statusCode: 204,
+    headers: DEFAULT_HEADERS,
+    body: '',
+  }
 }
 
 function getBearerToken(event) {
@@ -44,4 +57,4 @@ function verifyRequest(event) {
   return jwt.verify(token, process.env.JWT_SECRET)
 }
 
-export { pool, jsonResponse, errorResponse, verifyRequest }
+export { pool, jsonResponse, errorResponse, verifyRequest, optionsResponse }

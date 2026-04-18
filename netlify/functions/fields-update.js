@@ -15,6 +15,10 @@ function formatField(row) {
 }
 
 export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return optionsResponse()
+  }
+
   if (event.httpMethod !== 'PUT') {
     return errorResponse('Method not allowed', 405)
   }

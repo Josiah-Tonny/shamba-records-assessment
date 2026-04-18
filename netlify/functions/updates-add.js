@@ -1,6 +1,10 @@
 import { jsonResponse, errorResponse, pool, verifyRequest } from './shared.js'
 
 export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return optionsResponse()
+  }
+
   if (event.httpMethod !== 'POST') {
     return errorResponse('Method not allowed', 405)
   }

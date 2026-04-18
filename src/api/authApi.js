@@ -1,5 +1,14 @@
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-const apiBaseUrl = configuredApiBaseUrl.replace(/\/$/, '') || '/.netlify/functions'
+const apiBaseUrl = (() => {
+  const normalized = configuredApiBaseUrl.replace(/\/$/, '')
+  if (typeof window !== 'undefined' && normalized.includes('localhost')) {
+    const hostname = window.location.hostname
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return '/.netlify/functions'
+    }
+  }
+  return normalized || '/.netlify/functions'
+})()
 
 function jsonResponse(response) {
   return response.json().then((data) => {
