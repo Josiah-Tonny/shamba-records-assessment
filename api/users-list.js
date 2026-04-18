@@ -20,6 +20,11 @@ export default async function handler(req, res) {
     return errorResponse(res, 'Admin access required', 403)
   }
 
-  const result = await pool.query('SELECT id, name, email, role FROM users ORDER BY name')
-  return jsonResponse(res, result.rows)
+  try {
+    const result = await pool.query('SELECT id, name, email, role FROM users ORDER BY name')
+    return jsonResponse(res, result.rows)
+  } catch (error) {
+    console.error('Users list error:', error)
+    return errorResponse(res, 'Internal server error', 500)
+  }
 }

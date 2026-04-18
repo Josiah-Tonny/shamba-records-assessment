@@ -59,11 +59,28 @@ async function fetchFromApi(path, token, method = 'GET', body = null) {
     body: body ? JSON.stringify(body) : undefined,
   })
 
+  // Handle non-JSON responses gracefully
+  const text = await response.text()
+  
+  if (!text || text.trim() === '') {
+    throw new Error('Empty response from server')
+  }
+  
+  let data
+  try {
+    data = JSON.parse(text)
+  } catch (parseError) {
+    if (response.status === 500) {
+      throw new Error('Server error: Please check if the database is properly configured')
+    }
+    throw new Error(`Invalid response from server: ${text.substring(0, 100)}...`)
+  }
+  
   if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`)
+    throw new Error(data?.error || `Request failed with status ${response.status}`)
   }
 
-  return response.json()
+  return data
 }
 
 export async function fetchFields(token) {

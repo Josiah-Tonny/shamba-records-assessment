@@ -2,6 +2,11 @@
 import { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
 
+// Validate DATABASE_URL at module load time
+if (!process.env.DATABASE_URL) {
+  console.error('ERROR: DATABASE_URL environment variable is not set')
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
