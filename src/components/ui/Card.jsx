@@ -23,13 +23,13 @@ export const CardHeader = ({ children, className = '' }) => (
 );
 
 export const CardTitle = ({ children, className = '' }) => (
-  <h3 className={`text-lg font-semibold text-primary ${className}`}>
+  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>
     {children}
   </h3>
 );
 
 export const CardDescription = ({ children, className = '' }) => (
-  <p className={`mt-1 text-sm text-secondary ${className}`}>
+  <p className={`mt-1 text-sm text-gray-600 ${className}`}>
     {children}
   </p>
 );
@@ -41,7 +41,7 @@ export const CardContent = ({ children, className = '' }) => (
 );
 
 export const CardFooter = ({ children, className = '' }) => (
-  <div className={`mt-6 pt-6 border-t border-light flex items-center justify-between ${className}`}>
+  <div className={`mt-6 pt-6 border-t border-gray-200 flex items-center justify-between ${className}`}>
     {children}
   </div>
 );

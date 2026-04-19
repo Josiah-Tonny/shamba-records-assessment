@@ -50,7 +50,7 @@ const SidebarLayout = ({ children }) => {
   };
 
   return (
-    <div className="sidebar-layout relative">
+    <div className="flex min-h-screen">
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -60,19 +60,19 @@ const SidebarLayout = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <aside className={`sidebar flex-shrink-0 ${!isSidebarOpen ? 'sidebar-collapsed' : ''} ${isMobileMenuOpen ? 'fixed inset-y-0 left-0 z-50 shadow-2xl' : 'hidden lg:flex'}`}>
+      <aside className={`flex-shrink-0 ${!isSidebarOpen ? 'w-20' : 'w-64'} ${isMobileMenuOpen ? 'fixed inset-y-0 left-0 z-50 shadow-2xl' : 'hidden lg:flex'} bg-white border-r border-gray-200 flex-col transition-all duration-300`}>
         {/* Logo Section */}
-        <div className="sidebar-header border-b border-light/50 bg-primary/50 backdrop-blur-md">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3 w-full">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary-500/20 transition-all duration-300 hover:scale-110 active:scale-95">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Sprout className="w-6 h-6 text-white" />
             </div>
             {isSidebarOpen && (
-              <div className="overflow-hidden animate-fade-in">
-                <h1 className="font-bold text-lg text-primary whitespace-nowrap tracking-tight leading-tight">
-                  Shamba <span className="text-primary-600">Records</span>
+              <div className="overflow-hidden">
+                <h1 className="font-bold text-lg text-gray-900 whitespace-nowrap">
+                  Shamba <span className="text-green-600">Records</span>
                 </h1>
-                <p className="text-[10px] uppercase font-bold tracking-[0.1em] text-muted whitespace-nowrap">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500 whitespace-nowrap">
                   {isAdmin ? 'Admin Portal' : 'Agent Portal'}
                 </p>
               </div>
@@ -81,7 +81,7 @@ const SidebarLayout = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="sidebar-nav py-6">
+        <nav className="flex-1 overflow-y-auto py-6">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -93,9 +93,9 @@ const SidebarLayout = ({ children }) => {
                   navigate(item.path);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`sidebar-nav-item mb-1 group ${active ? 'active bg-primary-50/80 text-primary-700 shadow-sm' : 'text-secondary hover:bg-earth-100/50'} ${!isSidebarOpen ? 'justify-center mx-2 px-0' : 'mx-3'} transition-all duration-300`}
+                className={`mb-1 group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 ${!isSidebarOpen ? 'justify-center mx-2' : 'mx-3'} ${active ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-100'}`}
               >
-                <div className={`flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-300 ${active ? 'bg-primary-100 text-primary-600' : 'group-hover:bg-primary-50 group-hover:text-primary-500'}`}>
+                <div className={`flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-300 ${active ? 'bg-green-100 text-green-600' : 'group-hover:bg-green-50 group-hover:text-green-500'}`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 {isSidebarOpen && (
@@ -104,7 +104,7 @@ const SidebarLayout = ({ children }) => {
                   </span>
                 )}
                 {active && isSidebarOpen && (
-                  <div className="w-1 h-4 rounded-full bg-primary-600 ml-auto animate-scale-in" />
+                  <div className="w-1 h-4 rounded-full bg-green-600 ml-auto" />
                 )}
               </button>
             );
@@ -112,19 +112,19 @@ const SidebarLayout = ({ children }) => {
         </nav>
 
         {/* User Section */}
-        <div className="sidebar-footer p-4 border-t border-light/50 bg-earth-50/30">
-          <div className={`flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 hover:bg-white/80 hover:shadow-sm ${!isSidebarOpen ? 'justify-center p-1' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-100 to-primary-200 border-2 border-white flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-0.5">
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className={`flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 hover:bg-white hover:shadow-sm ${!isSidebarOpen ? 'justify-center p-1' : ''}`}>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-100 to-green-200 border-2 border-white flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-0.5">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                <User className="w-5 h-5 text-primary-600" />
+                <User className="w-5 h-5 text-green-600" />
               </div>
             </div>
             {isSidebarOpen && (
-              <div className="flex-1 min-w-0 animate-fade-in">
-                <p className="font-bold text-sm text-primary truncate leading-tight">
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm text-gray-900 truncate leading-tight">
                   {user?.name}
                 </p>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-muted mt-0.5">
+                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 mt-0.5">
                   {user?.role}
                 </p>
               </div>
@@ -134,7 +134,7 @@ const SidebarLayout = ({ children }) => {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 p-2.5 mt-3 rounded-xl text-secondary hover:bg-error-50 hover:text-error-600 group transition-all duration-300 font-bold text-xs uppercase tracking-widest ${!isSidebarOpen ? 'justify-center' : 'px-4'}`}
+            className={`w-full flex items-center gap-3 p-2.5 mt-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 group transition-all duration-300 font-bold text-xs uppercase tracking-wider ${!isSidebarOpen ? 'justify-center' : 'px-4'}`}
           >
             <LogOut className="w-4.5 h-4.5 flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
             {isSidebarOpen && <span>Sign Out</span>}
@@ -144,7 +144,7 @@ const SidebarLayout = ({ children }) => {
         {/* Collapse Toggle (Desktop only) */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-primary-600 text-white items-center justify-center shadow-md hover:bg-primary-700 transition-all duration-fast hover:scale-110 z-50"
+          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-green-600 text-white items-center justify-center shadow-md hover:bg-green-700 transition-all duration-150 hover:scale-110 z-50"
         >
           {isSidebarOpen ? (
             <ChevronLeft className="w-4 h-4" />
@@ -155,35 +155,35 @@ const SidebarLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="main-content relative z-10 bg-secondary overflow-hidden flex-1">
+      <div className="flex-1 flex flex-col min-h-screen bg-gray-50">
         {/* Top Header */}
-        <header className="top-header sticky top-0 z-30 bg-primary/80 backdrop-blur-lg border-b border-light transition-all duration-fast">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-gray-200 transition-all duration-150 px-6 py-4">
           <div className="flex items-center gap-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-earth-100 transition-all duration-fast active:scale-95"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-all duration-150 active:scale-95"
             >
-              <Menu className="w-6 h-6 text-secondary" />
+              <Menu className="w-6 h-6 text-gray-600" />
             </button>
 
             {/* Breadcrumb / Title */}
-            <h2 className="text-xl font-semibold text-primary hidden sm:block">
+            <h2 className="text-xl font-semibold text-gray-900 hidden sm:block">
               {navItems.find(item => isActive(item.path))?.label || 'Dashboard'}
             </h2>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Notifications */}
-            <button className="relative p-2 rounded-lg hover:bg-earth-100 transition-all duration-fast active:scale-95">
-              <Bell className="w-5 h-5 text-secondary" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error-500" />
+            <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-150 active:scale-95">
+              <Bell className="w-5 h-5 text-gray-600" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500" />
             </button>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="page-content bg-[var(--bg-secondary)]">
+        <main className="flex-1 p-6 overflow-y-auto">
           {children}
         </main>
       </div>
