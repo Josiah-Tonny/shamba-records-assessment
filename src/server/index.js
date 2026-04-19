@@ -36,6 +36,7 @@ app.use(helmet({
 }));
 
 // Security: CORS - allow all origins for Vercel serverless
+// Updated: 2026-04-19 to fix CORS blocking
 app.use(cors({
   origin: true,
   credentials: true,
