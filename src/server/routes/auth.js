@@ -19,25 +19,15 @@ const registerValidation = [
   body('role').isIn(['admin', 'agent'])
 ];
 
-import fs from 'fs';
-import path from 'path';
-
-const logFile = path.join(process.cwd(), 'login-debug.log');
-const log = (msg) => {
-  const timestamp = new Date().toISOString();
-  fs.appendFileSync(logFile, `[${timestamp}] ${msg}\n`);
-};
-
 // POST /api/auth/login
 router.post('/login', loginValidation, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    log(`Login validation failed: ${JSON.stringify(errors.array())}`);
+    console.log(`Login validation failed: ${JSON.stringify(errors.array())}`);
     return res.status(400).json({ success: false, error: 'Invalid input' });
   }
 
   const { email, password } = req.body;
-  log(`Login attempt for email: ${email}`);
   console.log(`Login attempt for email: ${email}`);
   
   try {
@@ -46,19 +36,17 @@ router.post('/login', loginValidation, async (req, res) => {
     const user = result.rows[0];
 
     if (!user) {
-      log(`Login failed: User with email ${email} not found`);
       console.log(`Login failed: User with email ${email} not found`);
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      log(`Login failed: Incorrect password for user ${email}`);
       console.log(`Login failed: Incorrect password for user ${email}`);
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    log(`Login successful for user: ${email} (Role: ${user.role})`);
+    console.log(`Login successful for user: ${email} (Role: ${user.role})`);
     // Generate tokens
     const accessToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
@@ -92,7 +80,6 @@ router.post('/login', loginValidation, async (req, res) => {
       }
     });
   } catch (error) {
-    log(`Login error: ${error.message}`);
     console.error('Login error:', error);
     res.status(500).json({ success: false, error: error.message || 'Server error' });
   }
