@@ -1,372 +1,124 @@
-# SmartSeason Field Monitoring System
+# Shamba Records
 
-A modern full-stack web application for managing agricultural fields and monitoring crop progress. Built with React, Express.js, Node.js, and PostgreSQL, deployed on Vercel.
+A web application for managing agricultural fields and monitoring crop progress. Built with React, Express.js, and PostgreSQL.
 
-## Features
+## Quick Start
 
-- **Role-Based Access Control**: Admin and Field Agent roles with distinct dashboards
-- **Field Management**: Create, update, and assign fields to agents
-- **Real-Time Field Monitoring**: Track field status (Active, At Risk, Completed)
-- **Field Updates**: Agents can post observations and stage updates
-- **JWT Authentication**: Secure stateless authentication with httpOnly cookies
-- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
-- **Database**: PostgreSQL on Neon for reliable data storage
+### Demo Accounts
+Use these accounts to explore the application:
 
-## Technology Stack
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@smartseason.com | Admin@1234 |
+| Agent | agent@smartseason.com | Agent@1234 |
 
-| Component | Technology |
-|-----------|-----------|
-| Frontend | React 19 + Vite |
-| Backend | Node.js + Express |
-| Database | PostgreSQL (Neon) |
-| Authentication | JWT (access + refresh tokens) |
-| Styling | Tailwind CSS v4 |
-| HTTP Client | Axios |
-| Routing | React Router v7 |
-| Deployment | Vercel |
+## What It Does
 
-## Setup Instructions
+- **Admin Dashboard**: Create fields, assign agents, view all field status
+- **Agent Dashboard**: View assigned fields, post updates on crop progress
+- **Field Tracking**: Automatic status calculation (Active, At Risk, Completed)
+- **Secure Access**: Role-based login system
+
+## Setup for Developers
 
 ### Prerequisites
+- Node.js 20+
+- A PostgreSQL database (Neon recommended)
 
-- Node.js 20+ (recommended: Node.js 24.x for Vercel compatibility)
-- npm or yarn
-- A Neon PostgreSQL database account (free tier available)
-- A Vercel account (free tier available for deployment)
+### Installation
 
-### Local Development
+1. Clone and install:
+```bash
+git clone <repo-url>
+cd shamba-records-assessment
+npm install
+```
 
-1. **Clone and install dependencies**
-   ```bash
-   git clone <repo-url>
-   cd shamba-records-assessment
-   npm install
-   ```
+2. Set up environment:
+```bash
+cp .env.example .env
+```
 
-2. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   ```
+Edit `.env` with your database URL and secrets:
+```env
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+JWT_SECRET=your_secret_key
+JWT_REFRESH_SECRET=another_secret_key
+PORT=3001
+```
 
-   Update `.env` with your values:
-   ```env
-   DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
-   JWT_SECRET=your_super_secret_key_here (minimum 32 characters)
-   JWT_REFRESH_SECRET=another_secret_key_here (minimum 32 characters)
-   PORT=3001
-   NODE_ENV=development
-   VITE_API_URL=http://localhost:3001
-   ```
+3. Create database tables:
+```bash
+node create-tables.js
+```
 
-   **Important**: Generate secure random secrets using:
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-   ```
+4. Add demo data (optional):
+```bash
+node src/server/seed.js
+```
 
-3. **Create database schema**
-   ```bash
-   node create-tables.js
-   ```
-   
-   Or manually run the SQL in Neon's SQL Editor (schema in `create-tables.js`).
+5. Start the app:
+```bash
+npm run dev
+```
+- Frontend: http://localhost:5173
+- Backend: http://localhost:3001
 
-4. **Seed demo data** (optional but recommended for testing)
-   ```bash
-   node src/server/seed.js
-   ```
+## Design Decisions
 
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
+### Why This Architecture?
+- **Single Repository**: Frontend and backend together for simpler deployment
+- **JWT Tokens**: Secure authentication without session storage
+- **Computed Status**: Field status calculated from data, not stored separately
+- **PostgreSQL**: Reliable, scalable database with Neon for free hosting
 
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3001
-   - Health check: http://localhost:3001/api/health
+### Assumptions Made
+- One agent assigned per field (simplified for initial version)
+- Field stages progress in order (planted → growing → harvested)
+- Admin users are trusted to manage all fields
+- All users have internet access (cloud-based deployment)
 
-### Vercel Deployment
+### Key Features
+- **Role-Based Access**: Admins see everything, agents see only their fields
+- **Auto Status**: Fields marked "At Risk" if no updates for 90+ days
+- **Mobile Friendly**: Works on phones and tablets
+- **No Local Storage**: Sensitive data never stored in browser
 
-1. **Push code to GitHub**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin master
-   ```
+## Deployment
 
-2. **Connect to Vercel**
-   - Go to https://vercel.com/new
-   - Import this GitHub repository
-   - Vercel will auto-detect the configuration via `vercel.json`
+The app is deployed on Vercel. To deploy your own:
 
-3. **Set Environment Variables in Vercel Dashboard**
-   Navigate to: Project Settings → Environment Variables
-   ```
-   DATABASE_URL=postgresql://... (from Neon)
-   JWT_SECRET=your_secure_random_secret
-   JWT_REFRESH_SECRET=another_secure_random_secret
-   FRONTEND_URL=https://your-app.vercel.app
-   NODE_ENV=production
-   ```
-
-4. **Deploy**
-   - Vercel will auto-deploy on git push
-   - Monitor build logs in Vercel dashboard
-
-## Demo Credentials
-
-Use these credentials to test the application (pre-seeded in database):
-
-| Role | Email | Password | Permissions |
-|------|-------|----------|-------------|
-| Admin | admin@smartseason.com | Admin@1234 | Full access: Create/edit/delete fields, view all agents, assign fields |
-| Agent | agent@smartseason.com | Agent@1234 | Limited access: View assigned fields, post updates, view field history |
-
-**Testing Checklist:**
-- [ ] Login as Admin → Create a new field → Assign to Agent
-- [ ] Login as Agent → View assigned field → Post update → Change stage
-- [ ] Login as Admin → View field status (should reflect Agent's update)
-- [ ] Test field status calculation (plant a field, wait 90+ days, check "At Risk" status)
-- [ ] Test JWT refresh (wait 1 hour, verify auto-refresh works)
-- [ ] Test role-based access (Agent cannot access Admin dashboard)
-
-## API Endpoints
-
-### Authentication (`/api/auth`)
-- `POST /register` - Register new user
-- `POST /login` - Login with email and password
-- `POST /logout` - Logout (clears refresh token cookie)
-- `POST /refresh` - Refresh access token
-- `GET /me` - Get current user profile
-
-### Fields (`/api/fields`)
-- `GET /` - Get all fields (Admin only)
-- `GET /mine` - Get agent's assigned fields (Agent only)
-- `GET /:id` - Get field details
-- `POST /` - Create new field (Admin only)
-- `PUT /:id` - Update field (Admin only)
-- `DELETE /:id` - Delete field (Admin only)
-
-### Field Updates (`/api/fields/:id/updates`)
-- `GET /:id/updates` - Get field update history
-- `POST /:id/updates` - Post field update (Assigned agent only)
+1. Push code to GitHub
+2. Import repository in Vercel
+3. Add environment variables in Vercel dashboard
+4. Connect a PostgreSQL database (Neon recommended)
+5. Deploy
 
 ## Project Structure
 
 ```
 src/
-├── server/              # Backend (Express.js)
-│   ├── index.js
-│   ├── db.js
-│   ├── middleware/
-│   │   ├── auth.js
-│   │   └── role.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   └── fields.js
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── fieldController.js
-│   │   └── updateController.js
-│   └── seed.js
-├── context/
-│   └── AuthContext.jsx   # Global auth state
-├── hooks/
-│   └── useAuth.js
-├── pages/
-│   ├── Login.jsx
-│   ├── Register.jsx
-│   ├── Dashboard.jsx
-│   ├── AdminDashboard.jsx
-│   ├── AgentDashboard.jsx
-│   ├── FieldDetail.jsx
-│   └── NotFound.jsx
-├── components/
-│   ├── layout/
-│   │   ├── Navbar.jsx
-│   │   └── ProtectedRoute.jsx
-│   ├── fields/
-│   │   ├── FieldCard.jsx
-│   │   ├── FieldStatusBadge.jsx
-│   │   └── UpdateForm.jsx
-│   └── ui/
-│       ├── StatCard.jsx
-│       └── LoadingSpinner.jsx
-├── services/
-│   └── api.js
-├── utils/
-│   └── fieldStatus.js
-├── App.jsx
-└── main.jsx
-
-api/
-└── index.js              # Vercel serverless entry
-
-vercel.json              # Vercel deployment config
+├── server/          # Backend API (Express)
+├── pages/           # React pages (Login, Dashboard, etc.)
+├── components/      # Reusable UI components
+├── context/         # Authentication state
+└── hooks/           # Custom React hooks
 ```
-
-## Field Status Logic
-
-Field status is computed dynamically based on the following rules:
-
-| Condition | Status |
-|-----------|--------|
-| `stage = 'harvested'` | **Completed** |
-| `stage IN ('planted','growing')` AND `planting_date < NOW() - 90 days` | **At Risk** |
-| Any other state | **Active** |
-
-## Design Decisions
-
-### 1. Single-Repo Architecture
-- **Why**: Simpler deployment to Vercel with unified dependencies and version control
-- **Trade-off**: Monorepo complexity handled by simple folder structure
-
-### 2. JWT Authentication (Access + Refresh)
-- **Access Token**: Stored in memory, sent in Authorization header
-- **Refresh Token**: HttpOnly cookie, automatically handled by interceptors
-- **Why**: Balances security (no localStorage) with UX (stateless, no session server)
-
-### 3. Computed Field Status
-- **Why**: Avoids synchronization issues between stored status and business logic
-- **Trade-off**: Slight computation overhead on each query (minimal for this scale)
-
-### 4. PostgreSQL + Neon
-- **Why**: Serverless-friendly, free tier, excellent for Vercel deployment
-- **Schema**: Normalized 3-table design (users, fields, field_updates)
-
-### 5. Tailwind CSS
-- **Why**: Utility-first CSS provides rapid, consistent styling without custom CSS files
-- **Theme**: Uses default Tailwind colors with responsive design
-
-### 6. Express in src/server
-- **Why**: Keeps everything in one Vite project, easier build/deploy pipeline
-- **Vercel Entry**: `api/index.js` imports from `src/server/index.js`
-
-## Deployment to Vercel
-
-### Prerequisites
-- GitHub repository with code pushed
-- Vercel account linked to GitHub
-
-### Steps
-
-1. **Connect to Vercel**
-   - Go to https://vercel.com/new
-   - Import this GitHub repository
-   - Select "Other" as the framework (we'll use custom build)
-
-2. **Configure Build Settings**
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-   - Install Command: `npm install`
-
-3. **Set Environment Variables**
-   In Vercel project settings → Environment Variables, add:
-   ```
-   DATABASE_URL=postgresql://...
-   JWT_SECRET=your_secret_here
-   JWT_REFRESH_SECRET=another_secret_here
-   NODE_ENV=production
-   VITE_API_URL=/api
-   FRONTEND_URL=https://your-vercel-app.vercel.app
-   ```
-
-4. **Add Database Connection**
-   - Create a Neon PostgreSQL database
-   - Copy the connection string to `DATABASE_URL`
-   - Run the schema creation in Neon SQL Editor (from create-tables.js)
-   - Run the seed script to populate demo data
-
-5. **Deploy**
-   - Push to GitHub and Vercel will auto-deploy
-   - Monitor build logs in Vercel dashboard
-
-## Testing
-
-### Run Backend Tests
-```bash
-npm test
-```
-
-### Manual Testing Flow
-
-1. **Auth Flow**
-   - Register new account
-   - Login with credentials
-   - Verify JWT stored in Authorization header
-   - Logout and verify token cleared
-
-2. **Admin Features**
-   - Create new field
-   - Assign agent to field
-   - View all fields with status
-   - Edit/delete field
-
-3. **Agent Features**
-   - View assigned fields
-   - Post field update with stage change
-   - Verify update appears in history
-
-## Known Limitations
-
-- One agent per field (can be extended with many-to-many relationship)
-- Field stage can only move forward in order
-- No bulk operations on fields
-- No real-time updates (full page refresh needed)
-
-## Future Enhancements
-
-- [ ] Real-time updates with WebSocket/Socket.io
-- [ ] Photo uploads for field updates
-- [ ] Advanced filtering and search
-- [ ] Export field data to CSV/PDF
-- [ ] Notification system for field alerts
-- [ ] Weather integration for field monitoring
-- [ ] Mobile app (React Native)
-
-## Coding Standards
-
-This project follows strict senior-engineer standards:
-
-- **Modularity**: Each file has single responsibility
-- **Error Handling**: All async operations wrapped in try-catch with meaningful logs
-- **Security**: No hardcoded secrets, all from environment variables
-- **Type Safety**: Intentional variable naming, consistent data shapes
-- **Testing**: Backend controllers have unit tests
-
-See [AGENTS.md](./AGENTS.md) for detailed standards.
 
 ## Troubleshooting
 
-### "Cannot find module 'dotenv'"
-```bash
-npm install
-```
+**Database connection fails**
+- Check DATABASE_URL in .env file
+- Ensure database is running and accessible
 
-### "Connection refused to database"
-- Verify DATABASE_URL in .env
-- Check Neon database is running
-- Ensure SSL mode is correct
+**Login not working**
+- Verify JWT_SECRET is set in environment
+- Check that database has users table with data
 
-### "Token expired" on fresh load
-- Delete refresh token cookie from browser storage
-- Log in again to get fresh tokens
-
-### Port 3001 already in use
-```bash
-# Kill process on port 3001
-lsof -ti:3001 | xargs kill -9
-# Or change PORT in .env
-```
-
-## Support
-
-For issues or questions, please open a GitHub issue or contact the development team.
+**Build errors**
+- Run `npm install` to update dependencies
+- Clear node_modules and reinstall if needed
 
 ## License
 
-This project is licensed under the MIT License - see [LICENSE](./LICENSE) file for details.
-
----
-
-**Last Updated**: April 2026
-**Deployment Deadline**: April 25, 2026
+MIT License - see LICENSE file for details.
