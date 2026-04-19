@@ -1,90 +1,66 @@
 import axios from 'axios';
 
+// Access token stored in memory only (not localStorage)
+let accessToken = null;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  withCredentials: true, // Sends httpOnly cookies automatically
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
-// Store the refresh callback configured by AuthContext
-let refreshCallback = null;
-let isRefreshing = false;
-let refreshSubscribers = [];
+// Request interceptor - attach access token from memory
+api.interceptors.request.use((config) => {
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
 
-// Store token in memory (not localStorage for security)
-let inMemoryToken = null;
-
-export const configureRefresh = (callback) => {
-  refreshCallback = callback;
-};
-
-const onTokenRefreshed = (newToken) => {
-  refreshSubscribers.forEach((callback) => callback(newToken));
-  refreshSubscribers = [];
-};
-
-const addRefreshSubscriber = (callback) => {
-  refreshSubscribers.push(callback);
-};
-
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    if (inMemoryToken) {
-      config.headers.Authorization = `Bearer ${inMemoryToken}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor for token refresh
+// Response interceptor - handle token refresh
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry && refreshCallback) {
-      if (isRefreshing) {
-        // Wait for refresh to complete
-        return new Promise((resolve) => {
-          addRefreshSubscriber((newToken) => {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            resolve(api(originalRequest));
-          });
-        });
-      }
-
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      isRefreshing = true;
-
+      
       try {
-        const newToken = await refreshCallback();
-        inMemoryToken = newToken;
-        api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-        onTokenRefreshed(newToken);
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        // Call refresh endpoint - httpOnly cookie sent automatically
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        
+        // Store new access token in memory
+        accessToken = response.data.accessToken;
+        
+        // Retry original request
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
+        // Clear memory and redirect
+        accessToken = null;
+        window.location.href = '/login';
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
-
+    
     return Promise.reject(error);
   }
 );
 
-export const setAuthToken = (token) => {
-  inMemoryToken = token;
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common['Authorization'];
-  }
+// Export functions to manage token
+export const setAccessToken = (token) => {
+  accessToken = token;
+};
+
+export const clearAccessToken = () => {
+  accessToken = null;
 };
 
 export default api;

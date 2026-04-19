@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import { Sprout, User, Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -19,45 +19,65 @@ const Register = () => {
     role: 'agent',
   });
   const [passwordError, setPasswordError]       = useState('');
-  const [loading, setLoading]                   = useState(false);
+  const [error, setError]                     = useState('');
+  const [loading, setLoading]                 = useState(false);
 
-  const { register, error, isAuthenticated, user } = useAuth();
+  const { register, login, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (!isAuthenticated || !user?.role) return;
-    navigate(
-      user.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard',
-      { replace: true }
-    );
-  }, [isAuthenticated, user, navigate]);
+    if (user) {
+      navigate(
+        user.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard',
+        { replace: true }
+      );
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === 'confirmPassword' || name === 'password') {
       setPasswordError('');
+      setError('');
     }
+  };
+
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[@$!%*?&]/.test(password);
+    
+    return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     if (formData.password !== formData.confirmPassword) {
       setPasswordError('Passwords do not match');
       return;
     }
-    if (formData.password.length < 8) {
-      setPasswordError('Password must be at least 8 characters');
+
+    if (!validatePassword(formData.password)) {
+      setPasswordError('Password must be at least 8 characters with uppercase, lowercase, number, and special character');
       return;
     }
 
     setLoading(true);
     try {
       await register(formData.name, formData.email, formData.password, formData.role);
-    } catch {
-      // Error handled by AuthContext
+      
+      // Auto-login after registration
+      await login(formData.email, formData.password);
+      
+      navigate(formData.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -184,7 +204,7 @@ const Register = () => {
 
               {/* API Error */}
               {error && (
-                <div className="login-error">
+                <div className="login-error animate-shake">
                   <AlertCircle />
                   <span>{error}</span>
                 </div>

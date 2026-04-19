@@ -1,43 +1,42 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
-import fieldsRoutes from './routes/fields.js';
-import pool from './db.js';
+import fieldRoutes from './routes/fields.js';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Cross-platform check if this is the main module
-const isMainModule = () => {
-  const argPath = path.normalize(process.argv[1]);
-  const modulePath = path.normalize(__filename);
-  return argPath === modulePath || argPath === modulePath.replace('.js', '');
-};
-
 const app = express();
-const PORT = process.env.PORT || 3001;
 
-// Middleware
-// CORS configuration with proper origin validation
+app.set('trust proxy', 1);
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// CORS
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:5175',
   'http://localhost:3000',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
-
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -50,75 +49,64 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Body parsing
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-// API Routes (must come before static serving)
+// Rate limiting - ONLY for auth endpoints, not all API
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts (increased from 5)
+  message: { success: false, error: 'Too many attempts, try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS' // Skip preflight
+});
+
+// Apply rate limiting ONLY to specific auth routes
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+
+// Routes - BEFORE any catch-all limiting
 app.use('/api/auth', authRoutes);
-app.use('/api/fields', fieldsRoutes);
+app.use('/api/fields', fieldRoutes);
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.join(__dirname, '../../../dist');
-  app.use(express.static(distPath));
-
-  // SPA fallback: serve index.html for non-API routes
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(distPath, 'index.html'));
-    }
-  });
-}
-
-// Health check
+// Health check - NO rate limiting
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, data: { status: 'OK', timestamp: new Date().toISOString() } });
+  res.json({ 
+    success: true,
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    database: process.env.DATABASE_URL ? 'configured' : 'missing'
+  });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found' });
+  res.status(404).json({ success: false, error: 'Route not found', path: req.path });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err); // Log full error internally
-
-  // Don't leak error details in production
-  const message = process.env.NODE_ENV === 'production'
-    ? 'Internal server error'
+  console.error('Error:', err);
+  const message = process.env.NODE_ENV === 'production' 
+    ? 'Internal server error' 
     : err.message;
-
   res.status(err.status || 500).json({
     success: false,
     error: message
   });
 });
 
-// Database health check on startup
-const startServer = async () => {
-  try {
-    // Test database connection
-    const dbResult = await pool.query('SELECT NOW() as current_time');
-    console.log('✅ Database connected at:', dbResult.rows[0].current_time);
-
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📡 API available at: http://localhost:${PORT}/api`);
-      console.log(`🔧 Health check: http://localhost:${PORT}/api/health`);
-    });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error.message);
-    console.error('Database connection failed. Check DATABASE_URL in .env');
-    process.exit(1);
-  }
-};
-
-// Start server if this is the main module (direct execution) and not in production
-if (isMainModule() && process.env.NODE_ENV !== 'production') {
-  startServer();
+// Local dev
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('CORS allowed origins:', allowedOrigins);
+  });
 }
 
-// Export for Vercel serverless
-module.exports = app;
+export default app;

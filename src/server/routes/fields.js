@@ -1,24 +1,72 @@
 import express from 'express';
-import { getAllFields, getMyFields, getFieldById, createField, updateField, deleteField } from '../controllers/fieldController.js';
-import { getFieldUpdates, createFieldUpdate } from '../controllers/updateController.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { requireRole } from '../middleware/role.js';
+import jwt from 'jsonwebtoken';
+import pool from '../db.js';
 
 const router = express.Router();
 
-// All routes require authentication
-router.use(authenticateToken);
+// Auth middleware
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, error: 'No token provided' });
+  }
 
-// Fields routes
-router.get('/', requireRole('admin'), getAllFields);         // Admin: get all fields
-router.get('/mine', getMyFields);                              // Agent: get assigned fields
-router.get('/:id', getFieldById);                              // Get single field
-router.post('/', requireRole('admin'), createField);           // Admin: create field
-router.put('/:id', requireRole('admin'), updateField);         // Admin: update field
-router.delete('/:id', requireRole('admin'), deleteField);      // Admin: delete field
+  const token = authHeader.substring(7);
 
-// Field updates routes
-router.get('/:fieldId/updates', getFieldUpdates);              // Get field update history
-router.post('/:fieldId/updates', createFieldUpdate);           // Agent: post update
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    req.userRole = decoded.role;
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, error: 'Invalid token' });
+  }
+};
+
+// GET /api/fields/mine - Agent's assigned fields
+router.get('/mine', authenticate, async (req, res) => {
+  try {
+    // Only agents can access their own fields
+    if (req.userRole !== 'agent') {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
+
+    const result = await pool.query(
+      `SELECT f.*, u.name as agent_name 
+       FROM fields f 
+       LEFT JOIN users u ON f.assigned_to = u.id 
+       WHERE f.assigned_to = $1 
+       ORDER BY f.created_at DESC`,
+      [req.userId]
+    );
+
+    res.json({ success: true, fields: result.rows });
+  } catch (error) {
+    console.error('Fetch mine error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// GET /api/fields - All fields (admin only)
+router.get('/', authenticate, async (req, res) => {
+  try {
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
+
+    const result = await pool.query(
+      `SELECT f.*, u.name as agent_name 
+       FROM fields f 
+       LEFT JOIN users u ON f.assigned_to = u.id 
+       ORDER BY f.created_at DESC`
+    );
+
+    res.json({ success: true, fields: result.rows });
+  } catch (error) {
+    console.error('Fetch all error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
 
 export default router;

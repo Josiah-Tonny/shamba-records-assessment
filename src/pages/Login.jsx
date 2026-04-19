@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, Mail, AlertCircle } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const { login, error, isAuthenticated } = useAuth();
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -16,20 +17,29 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+    if (user) {
+      navigate(user.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setError('');
+    setIsLoading(true);
+
     try {
-      await login(formData.email, formData.password);
-    } catch {
-      // Error handled by AuthContext
+      const user = await login(formData.email, formData.password);
+      
+      // Redirect based on role
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/agent/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Login failed. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -88,7 +98,7 @@ const Login = () => {
 
               <Button
                 type="submit"
-                isLoading={loading}
+                isLoading={isLoading}
                 className="w-full"
                 size="lg"
               >
