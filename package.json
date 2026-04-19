@@ -10,7 +10,8 @@
     "build": "vite build",
     "start": "NODE_ENV=production node server.js",
     "test": "jest --testPathPattern=src/server",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "kill-port": "npx kill-port 3000 3001"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.2",
