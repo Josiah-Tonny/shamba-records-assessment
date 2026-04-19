@@ -11,8 +11,12 @@ import { stageIcon, capitalize } from '../utils/fieldUtils';
 import { formatDate } from '../utils/dateUtils';
 import {
   ArrowLeft, CalendarDays, Sprout, User,
-  ClipboardList, ChevronDown, AlertTriangle, Send
+  ClipboardList, ChevronDown, AlertTriangle, Send,
+  CheckCircle, History
 } from 'lucide-react';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
+import Card, { CardContent } from '../components/ui/Card';
 
 const STAGES = ['planted', 'growing', 'ready', 'harvested'];
 
@@ -29,11 +33,37 @@ const FieldDetail = () => {
   const [newNotes, setNewNotes]   = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => { fetchFieldData(); }, [id]);
+  useEffect(() => {
+    const fetchFieldData = async () => {
+      try {
+        setLoading(true);
+        const [fieldRes, updatesRes] = await Promise.all([
+          api.get(`/fields/${id}`),
+          api.get(`/fields/${id}/updates`),
+        ]);
+        const fetchedField = fieldRes.data.data.field;
+        setField(fetchedField);
+        setUpdates(updatesRes.data.data.updates);
+        setNewStage(fetchedField.stage);
+        setError(null);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Failed to load field');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchFieldData = async () => {
+    fetchFieldData();
+  }, [id]);
+
+  const handlePostUpdate = async (e) => {
+    e.preventDefault();
+    if (!newStage) return;
     try {
-      setLoading(true);
+      setSubmitting(true);
+      await api.post(`/fields/${id}/updates`, { stage: newStage, notes: newNotes });
+      setNewNotes('');
+      // Manually trigger a refresh after successful post
       const [fieldRes, updatesRes] = await Promise.all([
         api.get(`/fields/${id}`),
         api.get(`/fields/${id}/updates`),
@@ -43,21 +73,6 @@ const FieldDetail = () => {
       setUpdates(updatesRes.data.data.updates);
       setNewStage(fetchedField.stage);
       setError(null);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load field');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePostUpdate = async (e) => {
-    e.preventDefault();
-    if (!newStage) return;
-    try {
-      setSubmitting(true);
-      await api.post(`/fields/${id}/updates`, { stage: newStage, notes: newNotes });
-      setNewNotes('');
-      await fetchFieldData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to post update');
     } finally {
@@ -125,60 +140,80 @@ const FieldDetail = () => {
         )}
 
         {/* ── Field Header Card ── */}
-        <div className="bg-primary rounded-2xl border border-light shadow-sm p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-primary tracking-tight">
+        <div className="bg-white rounded-3xl border border-light shadow-2xl shadow-primary-900/5 p-8 mb-8 overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+            <Sprout className="w-48 h-48 -mr-12 -mt-12" />
+          </div>
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-[10px] font-extrabold uppercase tracking-widest border border-primary-200/50">
+                  {field.crop_type}
+                </div>
+                <FieldStatusBadge status={field.status} />
+              </div>
+              <h1 className="text-4xl font-extrabold text-primary tracking-tight">
                 {field.name}
               </h1>
-              <p className="text-secondary mt-1 text-sm flex items-center gap-1.5">
-                <Sprout className="w-4 h-4 text-primary-500" aria-hidden="true" />
-                {field.crop_type}
-              </p>
+              <div className="flex items-center gap-2 text-muted font-bold text-[10px] uppercase tracking-widest">
+                <MapPin className="w-3 h-3" />
+                Agricultural Sector 4B · Hybrid Management
+              </div>
             </div>
-            <FieldStatusBadge status={field.status} />
+            
+            <div className="flex items-center gap-4 bg-earth-50/50 p-4 rounded-2xl border border-light/50">
+               <div className="text-right">
+                  <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Current Cycle State</p>
+                  <p className="text-xl font-black text-primary uppercase tracking-tighter tabular-nums">
+                    {stageIcon(field.stage)} {field.stage}
+                  </p>
+               </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
             {/* Planting Date */}
-            <div className="flex items-start gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 mt-0.5">
-                <CalendarDays className="w-4 h-4 text-primary-600" />
+            <div className="p-4 rounded-2xl bg-white border border-light shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
+                <CalendarDays className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs text-muted font-medium uppercase tracking-wide">
-                  Planted
+                <p className="text-[10px] text-muted font-bold uppercase tracking-widest leading-none mb-1.5">
+                  Initial Planting
                 </p>
-                <p className="text-sm font-semibold text-primary mt-0.5">
+                <p className="text-sm font-black text-primary">
                   {formatDate(field.planting_date)}
                 </p>
               </div>
             </div>
-            {/* Current Stage */}
-            <div className="flex items-start gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 mt-0.5">
-                <Sprout className="w-4 h-4 text-primary-600" />
+            
+            {/* Growth Stage */}
+            <div className="p-4 rounded-2xl bg-white border border-light shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
+                <Sprout className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs text-muted font-medium uppercase tracking-wide">
-                  Stage
+                <p className="text-[10px] text-muted font-bold uppercase tracking-widest leading-none mb-1.5">
+                  Maturity Phase
                 </p>
-                <p className="text-sm font-semibold text-primary mt-0.5">
-                  {stageIcon(field.stage)} {capitalize(field.stage)}
+                <p className="text-sm font-black text-primary">
+                  {capitalize(field.stage)} Growth
                 </p>
               </div>
             </div>
+            
             {/* Assigned Agent */}
             {field.assigned_to_name && (
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 mt-0.5">
-                  <User className="w-4 h-4 text-primary-600" />
+              <div className="p-4 rounded-2xl bg-white border border-light shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
+                  <User className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted font-medium uppercase tracking-wide">
-                    Agent
+                  <p className="text-[10px] text-muted font-bold uppercase tracking-widest leading-none mb-1.5">
+                    Field Custodian
                   </p>
-                  <p className="text-sm font-semibold text-primary mt-0.5">
+                  <p className="text-sm font-black text-primary">
                     {field.assigned_to_name}
                   </p>
                 </div>
@@ -187,78 +222,64 @@ const FieldDetail = () => {
           </div>
 
           {/* Stage Progress Bar */}
-          <GrowthProgress currentStage={field.stage} />
+          <div className="mt-10 px-2">
+            <GrowthProgress currentStage={field.stage} />
+          </div>
         </div>
 
         {/* ── Agent Update Form ── */}
         {isAssignedAgent && (
-          <div className="bg-primary rounded-2xl border border-light shadow-sm p-6 mb-6 animate-scale-in">
-            <h2 className="text-base font-bold text-primary mb-5 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-primary-100 flex items-center justify-center" aria-hidden="true">
-                <Send className="w-3.5 h-3.5 text-primary-600" />
-              </span>
-              Post an Update
-            </h2>
-
-            <form onSubmit={handlePostUpdate} className="space-y-4">
-              <div>
-                <label htmlFor="stage" className="block text-sm font-medium text-primary mb-1.5">
-                  Current Stage
-                </label>
-                <div className="relative">
-                  <select
-                    id="stage"
-                    value={newStage}
-                    onChange={(e) => setNewStage(e.target.value)}
-                    className="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border border-default
-                               bg-primary text-primary text-sm
-                               focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                               transition-all duration-fast"
-                    aria-describedby="stage-help"
-                  >
-                    {STAGES.map((s) => (
-                      <option key={s} value={s}>
-                        {stageIcon(s)} {capitalize(s)}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" aria-hidden="true" />
+          <Card className="mb-8 border-light shadow-xl shadow-earth-200/40 overflow-hidden" padding="none">
+            <div className="bg-earth-100/50 px-6 py-4 border-b border-light flex items-center justify-between">
+               <h3 className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-primary">Log Site Intervention</h3>
+               <Badge variant="primary" size="sm">Active Session</Badge>
+            </div>
+            <CardContent className="p-6">
+              <form onSubmit={handlePostUpdate} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-1 space-y-1.5">
+                    <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Observed Stage</label>
+                    <div className="relative">
+                      <select
+                        id="stage"
+                        value={newStage}
+                        onChange={(e) => setNewStage(e.target.value)}
+                        className="w-full appearance-none px-4 py-2.5 rounded-xl border border-light
+                                   bg-white text-primary font-bold text-sm
+                                   focus:ring-2 focus:ring-primary-500 transition-all outline-none"
+                      >
+                        {STAGES.map((s) => (
+                          <option key={s} value={s}>
+                            {stageIcon(s)} {capitalize(s)}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                    </div>
+                  </div>
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Field Observations</label>
+                    <textarea
+                      id="notes"
+                      placeholder="Enter detailed observation notes about crop health, soil conditions, or pest levels..."
+                      value={newNotes}
+                      onChange={(e) => setNewNotes(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-light bg-white text-primary text-sm
+                                 min-h-[100px] focus:ring-2 focus:ring-primary-500 transition-all outline-none font-medium"
+                    />
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-primary mb-1.5">
-                  Observations & Notes
-                  <span className="ml-1.5 text-xs font-normal text-muted">(optional)</span>
-                </label>
-                <textarea
-                  id="notes"
-                  value={newNotes}
-                  onChange={(e) => setNewNotes(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-xl border border-default
-                             bg-primary text-primary text-sm
-                             placeholder:text-muted
-                             focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                             resize-none transition-all duration-fast"
-                  placeholder="Describe current field conditions, observations, or any concerns…"
-                  aria-describedby="notes-help"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
-                           bg-primary-600 hover:bg-primary-700 text-white
-                           disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-fast shadow-sm active:scale-[0.98]"
-                aria-busy={submitting}
-              >
-                <Send className="w-4 h-4" aria-hidden="true" />
-                {submitting ? 'Posting…' : 'Post Update'}
-              </button>
-            </form>
-          </div>
+                <div className="flex justify-end pt-2">
+                  <Button type="submit" disabled={submitting} variant="primary" className="px-8 py-3 rounded-xl shadow-lg active:scale-95 transition-all">
+                    <span className="font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      {submitting ? 'Committing...' : 'Commit Observation'}
+                    </span>
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
         {/* ── Update History ── */}

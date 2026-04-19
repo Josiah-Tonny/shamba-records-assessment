@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"nodemon src/server/index.js\"",
+    "dev": "node server.js",
     "build": "vite build",
-    "server": "node src/server/index.js",
+    "start": "node dist/server.cjs",
     "test": "jest --testPathPattern=src/server",
     "lint": "eslint src"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.15.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
@@ -26,7 +27,8 @@
     "pg": "^8.20.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-router-dom": "^7.14.1"
+    "react-router-dom": "^7.14.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

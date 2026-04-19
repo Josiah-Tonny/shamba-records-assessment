@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
 /**
@@ -13,23 +13,24 @@ export const useAgentData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (retryCount = 0) => {
+  const fetchData = useCallback(async (retryCount = 0) => {
     try {
-      setLoading(true);
+      // setLoading(true); // Handled by initial state or triggered async
       
       const fieldsRes = await api.get('/fields/mine');
-      const fetchedFields = fieldsRes.data.data.fields;
+      const fetchedFields = fieldsRes.data.data?.fields || [];
       setFields(fetchedFields);
 
       // Fetch recent updates for all assigned fields in parallel
       const results = await Promise.allSettled(
         fetchedFields.map((field) =>
-          api.get(`/fields/${field.id}/updates`).then((res) =>
-            (res.data.data.updates || []).map((u) => ({
+          api.get(`/fields/${field.id}/updates`).then((res) => {
+            const updatesList = res.data.data?.updates || res.data.updates || [];
+            return updatesList.map((u) => ({
               ...u,
               field_name: field.name,
-            }))
-          )
+            }));
+          })
         )
       );
 
@@ -53,22 +54,22 @@ export const useAgentData = () => {
       
       // Auto-retry once on network errors
       if (retryCount === 0 && !err.response) {
-        console.log('Retrying data fetch...');
-        setTimeout(() => fetchData(1), 1000);
+        console.log('Data fetch failed (network error)');
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const retry = () => {
+  const retry = useCallback(() => {
     setError(null);
     fetchData();
-  };
+  }, [fetchData]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return {
     fields,

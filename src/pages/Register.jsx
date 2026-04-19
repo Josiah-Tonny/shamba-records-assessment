@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Sprout, User, Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { Sprout, User, Mail, Lock, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
@@ -64,7 +64,7 @@ const Register = () => {
     }
 
     if (!validatePassword(formData.password)) {
-      setPasswordError('Password must be at least 8 characters with uppercase, lowercase, number, and special character');
+      setPasswordError('Security requirement: 8+ chars, uppercase, lowercase, number, symbol');
       return;
     }
 
@@ -85,148 +85,182 @@ const Register = () => {
 
 
   return (
-    <div className="login-container">
-      <div className="login-box animate-slide-up stagger-1">
-
-        {/* Logo Section */}
-        <div className="login-logo animate-fade-in stagger-2">
-          <div className="login-logo-icon shadow-md">
-            <Sprout />
-          </div>
-          <h1>Shamba Records</h1>
-          <p>Smart Season Management System</p>
+    <div className="auth-layout">
+      {/* Left Side - Image/Content (Desktop) */}
+      <div className="auth-side animate-fade-in">
+        <div className="auth-side-bg">
+          <img 
+            src="https://images.unsplash.com/photo-1594919507949-1667d4f90117?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
+            alt="Farming community" 
+            referrerPolicy="no-referrer"
+          />
         </div>
+        <div className="auth-side-overlay" />
+        
+        <div className="auth-side-content">
+          <div className="auth-side-logo">
+            <div className="auth-side-logo-icon">
+              <Sprout size={24} />
+            </div>
+            <h1>Shamba Records</h1>
+          </div>
+          
+          <div className="auth-side-hero">
+            <div className="animate-slide-up stagger-1">
+              <h2>Join Our Agricultural Network.</h2>
+            </div>
+            <div className="animate-slide-up stagger-2">
+              <p>
+                Take the first step towards smarter field management. Connect 
+                with agents, monitor crop progress, and scale your operations.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="auth-side-footer animate-fade-in stagger-3">
+          &copy; 2026 Shamba Records. Professional Field Management.
+        </div>
+      </div>
 
-        {/* Card */}
-        <div className="login-card">
+      {/* Right Side - Form */}
+      <div className="auth-content overflow-y-auto">
+        <div className="auth-form-container my-12">
+          {/* Mobile Logo */}
+          <div className="auth-mobile-logo animate-fade-in border-b border-light pb-6 mb-8 w-full flex justify-center">
+             <div className="flex items-center gap-3">
+                <div className="auth-mobile-logo-icon bg-primary-600 shadow-lg shadow-primary-500/20">
+                  <Sprout size={20} className="text-white" />
+                </div>
+                <h1 className="text-xl font-black tracking-tighter text-primary">Shamba Records</h1>
+             </div>
+          </div>
 
-          {/* Card Header */}
-          <div className="login-card-header">
-            <h2>Create Account</h2>
-            <p>
-              Already have an account?{' '}
-              <Link to="/login">
-                Sign in
-              </Link>
+          <div className="auth-header animate-slide-up stagger-1">
+            <h2 className="text-3xl font-black text-primary tracking-tighter">Create Account</h2>
+            <p className="text-secondary font-medium">
+              Join our network or{' '}
+              <Link to="/login" className="text-primary-600 font-bold hover:underline underline-offset-4 decoration-2">sign in if you have an account</Link>
             </p>
           </div>
 
-          {/* Card Body */}
-          <div className="login-card-body">
-            <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* Full Name */}
+          <form className="space-y-6 animate-slide-up stagger-2" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Input
                 label="Full Name"
                 name="name"
                 type="text"
                 icon={User}
                 required
-                placeholder="Jane Wanjiku"
+                placeholder="First and last name"
                 value={formData.name}
                 onChange={handleChange}
               />
 
-              {/* Email */}
               <Input
                 label="Email Address"
                 name="email"
                 type="email"
                 icon={Mail}
                 required
-                placeholder="jane@example.com"
+                placeholder="email@example.com"
                 value={formData.email}
                 onChange={handleChange}
               />
+            </div>
 
-              {/* Password */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Input
                 label="Password"
                 name="password"
                 type="password"
                 icon={Lock}
                 required
-                placeholder="Min. 8 characters"
+                placeholder="Secret phrase"
                 value={formData.password}
                 onChange={handleChange}
               />
 
-              {/* Confirm Password */}
               <Input
                 label="Confirm Password"
                 name="confirmPassword"
                 type="password"
                 icon={ShieldCheck}
                 required
-                placeholder="Re-enter your password"
+                placeholder="Repeat phrase"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 error={passwordError}
               />
+            </div>
 
-              {/* Role */}
-              <div>
-                <label className="block mb-2 text-sm font-medium text-primary">
-                  Select Your Role
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {ROLES.map((role) => (
-                    <label
-                      key={role.value}
-                      className={`flex flex-col gap-1 p-3 rounded-lg border-2 cursor-pointer transition-all duration-fast
-                        ${formData.role === role.value
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-default bg-secondary hover:border-primary-300'
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="role"
-                        value={role.value}
-                        checked={formData.role === role.value}
-                        onChange={handleChange}
-                        className="sr-only"
-                      />
-                      <span className={`text-sm font-semibold ${
-                        formData.role === role.value
-                          ? 'text-primary-700'
-                          : 'text-primary'
+            {/* Role Selection */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                 <ShieldCheck className="w-3.5 h-3.5 text-primary-600" />
+                 Designated Operational Role
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {ROLES.map((role) => (
+                  <label
+                    key={role.value}
+                    className={`group flex flex-col gap-2 p-4 rounded-3xl border-2 cursor-pointer transition-all duration-500 relative overflow-hidden
+                      ${formData.role === role.value
+                        ? 'border-primary-600 bg-white shadow-xl shadow-primary-900/5 ring-1 ring-primary-600'
+                        : 'border-light bg-earth-50/30 hover:border-primary-300 hover:bg-white'
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value={role.value}
+                      checked={formData.role === role.value}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    
+                    {formData.role === role.value && (
+                       <div className="absolute top-0 right-0 w-12 h-12 bg-primary-600 rounded-bl-[100%] flex items-center justify-center pl-3 pb-3">
+                          <CheckCircle2 className="w-4 h-4 text-white" />
+                       </div>
+                    )}
+
+                    <div className="flex items-center justify-between relative z-10">
+                      <span className={`text-xs font-black uppercase tracking-widest ${
+                        formData.role === role.value ? 'text-primary-600' : 'text-primary-800'
                       }`}>
                         {role.label}
                       </span>
-                      <span className="text-xs leading-snug text-muted">
-                        {role.description}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                    </div>
+                    <span className="text-[11px] font-medium leading-relaxed text-secondary/80 relative z-10">
+                      {role.description}
+                    </span>
+                    
+                    {/* Hover Decoration */}
+                    <div className={`absolute -bottom-6 -right-6 w-16 h-16 rounded-full blur-2xl transition-all duration-500
+                      ${formData.role === role.value ? 'bg-primary-100 opacity-100' : 'bg-primary-50 opacity-0 group-hover:opacity-100'}`} />
+                  </label>
+                ))}
               </div>
+            </div>
 
-              {/* API Error */}
-              {error && (
-                <div className="login-error animate-shake">
-                  <AlertCircle />
-                  <span>{error}</span>
-                </div>
-              )}
+            {error && (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-error-50 border border-error-100 text-error-700 animate-shake shadow-sm">
+                <AlertCircle size={18} className="shrink-0" />
+                <span className="text-xs font-bold uppercase tracking-wide">{error}</span>
+              </div>
+            )}
 
-              {/* Submit */}
-              <Button
-                type="submit"
-                isLoading={loading}
-                className="w-full"
-                size="lg"
-              >
-                Create Account
-              </Button>
-            </form>
-          </div>
+            <Button
+              type="submit"
+              isLoading={loading}
+              className="w-full mt-2 shadow-xl shadow-primary-500/10 active:scale-[0.98] transition-all"
+              size="lg"
+            >
+              Initialize Profile
+            </Button>
+          </form>
         </div>
-
-        {/* Footer */}
-        <p className="login-page-footer">
-          &copy; 2024 Shamba Records. All rights reserved.
-        </p>
       </div>
     </div>
   );

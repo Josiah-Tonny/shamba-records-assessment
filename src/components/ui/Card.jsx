@@ -1,10 +1,4 @@
-const Card = ({ children, className = '', padding = 'lg', shadow = 'md' }) => {
-  const paddingStyles = {
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
-  };
-
+const Card = ({ children, className = '', shadow = 'md' }) => {
   const shadowStyles = {
     sm: 'shadow-sm',
     md: 'shadow',

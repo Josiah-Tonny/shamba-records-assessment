@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import api from '../services/api';
 import {
   MapPin, Sprout, AlertTriangle, CheckCircle,
-  Plus, Users, Search, Filter, X, ChevronDown
+  Plus, Users, Search, Filter, X, ChevronDown, LayoutDashboard
 } from 'lucide-react';
 import SidebarLayout from '../components/layout/SidebarLayout';
 import FieldCard from '../components/fields/FieldCard';
@@ -31,24 +31,26 @@ const AdminDashboard = () => {
     name: '', crop_type: '', planting_date: '', assigned_to: ''
   });
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [fieldsRes, agentsRes] = await Promise.all([
-        api.get('/fields'),
-        api.get('/auth/agents'),
-      ]);
-      setFields(fieldsRes.data.data.fields);
-      setAgents(agentsRes.data.data.agents || []);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [fieldsRes, agentsRes] = await Promise.all([
+          api.get('/fields'),
+          api.get('/auth/agents'),
+        ]);
+        setFields(fieldsRes.data.data.fields);
+        setAgents(agentsRes.data.data.agents || []);
+        setError(null);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => { fetchData(); }, []);
+    fetchData();
+  }, []);
 
   const handleCreateField = async (e) => {
     e.preventDefault();
@@ -56,7 +58,14 @@ const AdminDashboard = () => {
       await api.post('/fields', formData);
       setFormData({ name: '', crop_type: '', planting_date: '', assigned_to: '' });
       setShowForm(false);
-      await fetchData();
+      // Manually trigger refresh
+      const [fieldsRes, agentsRes] = await Promise.all([
+        api.get('/fields'),
+        api.get('/auth/agents'),
+      ]);
+      setFields(fieldsRes.data.data.fields);
+      setAgents(agentsRes.data.data.agents || []);
+      setError(null);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create field');
     }
@@ -97,48 +106,48 @@ const AdminDashboard = () => {
       <div className="flex flex-col h-full overflow-hidden">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between shrink-0 animate-fade-in stagger-1">
-        <div>
-          {isDashboardView && (
-            <>
-              <h1 className="text-2xl font-bold text-primary tracking-tight">
-                Dashboard Overview
-              </h1>
-              <p className="text-sm text-secondary mt-1">
-                Manage fields and monitor agricultural activities
-              </p>
-            </>
-          )}
-          {isFieldsView && (
-            <>
-              <h1 className="text-2xl font-bold text-primary tracking-tight">
-                All Fields
-              </h1>
-              <p className="text-sm text-secondary mt-1">
-                View and manage all agricultural fields
-              </p>
-            </>
-          )}
-          {isAgentsView && (
-            <>
-              <h1 className="text-2xl font-bold text-primary tracking-tight">
-                Agents Directory
-              </h1>
-              <p className="text-sm text-secondary mt-1">
-                Manage all field agents
-              </p>
-            </>
-          )}
+      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between shrink-0 animate-fade-in stagger-1">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg shadow-primary-900/20">
+             <LayoutDashboard className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            {isDashboardView && (
+              <>
+                <h1 className="text-3xl font-extrabold text-primary tracking-tight leading-none">
+                  Operations Center
+                </h1>
+                <p className="text-sm font-bold text-muted tracking-widest uppercase mt-1.5 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-primary-500" />
+                  Real-time Monitoring & Control
+                </p>
+              </>
+            )}
+            {isFieldsView && (
+              <>
+                <h1 className="text-3xl font-extrabold text-primary tracking-tight">Field Registry</h1>
+                <p className="text-sm font-bold text-muted tracking-widest uppercase mt-1.5">Inventory & Management</p>
+              </>
+            )}
+            {isAgentsView && (
+              <>
+                <h1 className="text-3xl font-extrabold text-primary tracking-tight">Agent Network</h1>
+                <p className="text-sm font-bold text-muted tracking-widest uppercase mt-1.5">Personnel Directory</p>
+              </>
+            )}
+          </div>
         </div>
 
         {(isDashboardView || isFieldsView) && (
           <Button
             onClick={() => setShowForm(!showForm)}
             variant={showForm ? 'secondary' : 'primary'}
-            className="flex items-center gap-2 shrink-0"
+            className="flex items-center gap-2.5 px-6 py-3 rounded-2xl shadow-lg transition-all active:scale-95"
           >
-            {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            {showForm ? 'Cancel' : 'Create New Field'}
+            {showForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+            <span className="font-bold uppercase tracking-wider text-xs">
+              {showForm ? 'Discard Draft' : 'Provision New Field'}
+            </span>
           </Button>
         )}
       </div>
@@ -169,66 +178,83 @@ const AdminDashboard = () => {
 
       {/* ── Create Field Form ── */}
       {showForm && (isDashboardView || isFieldsView) && (
-        <Card className="mb-4 border-primary-200 shadow-sm shrink-0 animate-scale-in" padding="md">
-          <CardHeader className="pb-3 mb-4 border-b border-light">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <span className="w-6 h-6 rounded-lg bg-primary-100 flex items-center justify-center">
-                <Plus className="w-3.5 h-3.5 text-primary-600" />
-              </span>
-              Create New Field
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreateField} className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                label="Field Name"
-                placeholder="e.g., North Valley Field"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-              <Input
-                label="Crop Type"
-                placeholder="e.g., Maize, Beans, Coffee"
-                required
-                value={formData.crop_type}
-                onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
-              />
-              <Input
-                label="Planting Date"
-                type="date"
-                required
-                value={formData.planting_date}
-                onChange={(e) => setFormData({ ...formData, planting_date: e.target.value })}
-              />
-              <div>
-                <label className="block text-sm font-medium mb-1.5 text-primary">
-                  Assign to Agent
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.assigned_to}
-                    onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                    className="w-full appearance-none px-4 py-2.5 pr-10 rounded-lg border border-default
-                               bg-primary text-primary
-                               focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                               transition-all duration-fast text-sm"
-                  >
-                    <option value="">Select an agent</option>
-                    {agents.map((agent) => (
-                      <option key={agent.id} value={agent.id}>{agent.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+        <Card className="mb-8 border-primary-200 shadow-xl shadow-primary-900/5 bg-gradient-to-br from-white to-earth-50 shrink-0 animate-scale-in overflow-hidden" padding="none">
+          <div className="bg-primary-600 px-6 py-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2.5 text-white font-bold uppercase tracking-widest text-xs">
+              <Plus className="w-4 h-4" />
+              Field Provisioning Workshop
+            </h2>
+            <Badge variant="success" size="sm" className="bg-white/20 text-white border-none">Step 1: Definition</Badge>
+          </div>
+          
+          <CardContent className="p-6">
+            <form onSubmit={handleCreateField} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Asset Name</label>
+                  <Input
+                    placeholder="e.g., North Valley"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="rounded-xl border-light focus:border-primary-500 transition-all font-semibold"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Botanical Class</label>
+                  <Input
+                    placeholder="e.g., Arabica Coffee"
+                    required
+                    value={formData.crop_type}
+                    onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
+                    className="rounded-xl border-light focus:border-primary-500 transition-all font-semibold"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Inauguration Date</label>
+                  <Input
+                    type="date"
+                    required
+                    value={formData.planting_date}
+                    onChange={(e) => setFormData({ ...formData, planting_date: e.target.value })}
+                    className="rounded-xl border-light focus:border-primary-500 transition-all font-semibold"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Assignment Officer</label>
+                  <div className="relative">
+                    <select
+                      value={formData.assigned_to}
+                      onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
+                      className="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border border-light
+                                 bg-white text-primary font-semibold
+                                 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                                 transition-all duration-300 text-sm shadow-sm"
+                    >
+                      <option value="">Unassigned</option>
+                      {agents.map((agent) => (
+                        <option key={agent.id} value={agent.id}>{agent.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted/60" />
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-3 pt-1 md:col-span-2">
-                <Button type="submit" variant="success" className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" /> Create Field
+              
+              <div className="flex items-center gap-3 pt-4 border-t border-light">
+                <Button type="submit" variant="primary" className="px-8 py-3 rounded-xl shadow-lg shadow-primary-500/20 active:scale-95 transition-all">
+                  <span className="font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Commit Field to Registry
+                  </span>
                 </Button>
-                <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
-                  Cancel
-                </Button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowForm(false)}
+                  className="text-xs font-bold text-muted uppercase tracking-widest hover:text-primary transition-colors px-4"
+                >
+                  Discard Changes
+                </button>
               </div>
             </form>
           </CardContent>

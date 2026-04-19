@@ -3,11 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAgentData } from '../hooks/useAgentData';
 import { normalizeStatus } from '../utils/fieldUtils';
-import { formatDate } from '../utils/dateUtils';
 import { getAgentView } from '../utils/viewUtils';
 import {
   MapPin, Sprout, AlertTriangle, CheckCircle,
-  Search, User, Calendar, ClipboardList, ArrowRight, X
+  Search, User, Calendar, ClipboardList, ArrowRight, X,
+  LayoutDashboard, History, Clock, ArrowUpRight
 } from 'lucide-react';
 import SidebarLayout from '../components/layout/SidebarLayout';
 import FieldCard from '../components/fields/FieldCard';
@@ -69,28 +69,45 @@ const AgentDashboard = () => {
     <SidebarLayout>
 
       {/* ── Page Header ── */}
-      <div className="mb-8 animate-fade-in stagger-1">
+      <div className="mb-10 animate-fade-in stagger-1">
         {(isDashboardView || isUpdatesView) && (
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[var(--primary-100)] flex items-center justify-center shrink-0">
-              <User className="w-6 h-6 text-[var(--primary-600)]" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-50 to-white border-2 border-white shadow-xl shadow-earth-200/50 flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-primary-600 flex items-center justify-center shadow-inner">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-extrabold text-primary tracking-tight leading-none">
+                  Habari, {user?.name?.split(' ')[0]}!
+                </h1>
+                <p className="text-sm font-semibold text-muted tracking-wide uppercase mt-1.5 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
+                  Field Agent · {stats.total} Field{stats.total !== 1 ? 's' : ''} Managed
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
-                Welcome back, {user?.name?.split(' ')[0]}!
-              </h1>
-              <p className="text-sm text-[var(--text-secondary)] mt-0.5">
-                Field Agent · {stats.total} field{stats.total !== 1 ? 's' : ''} assigned
-              </p>
+            
+            <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-light shadow-sm self-start md:self-auto">
+               <div className="px-4 py-2 rounded-xl bg-earth-50 border border-light/50">
+                  <p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-0.5">Local Time</p>
+                  <p className="text-sm font-bold text-primary font-mono">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+               </div>
+               <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600">
+                  <Calendar className="w-5 h-5" />
+               </div>
             </div>
           </div>
         )}
         {isFieldsView && (
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">My Fields</h1>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Manage and track your assigned fields
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-extrabold text-primary tracking-tight">Active Portfolio</h1>
+              <p className="text-sm font-semibold text-muted tracking-wide uppercase mt-1">
+                Field Assignments & Status
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -210,50 +227,69 @@ const AgentDashboard = () => {
           <div className="space-y-4">
 
             {/* Recent Activity */}
-            <Card>
-              <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[var(--border-light)]">
-                <div className="w-7 h-7 rounded-lg bg-[var(--primary-100)] flex items-center justify-center">
-                  <Calendar className="w-4 h-4 text-[var(--primary-600)]" />
+            <Card className="overflow-hidden border-light shadow-sm">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-light bg-earth-50/30">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center shadow-sm">
+                    <ClipboardList className="w-4 h-4 text-primary-600" />
+                  </div>
+                  <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Feed Activity</h3>
                 </div>
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Recent Activity</h3>
+                <Badge variant="primary" size="sm">Live</Badge>
               </div>
 
+              <div className="p-5">
               {recentActivity.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-6 text-center">
-                  <ClipboardList className="w-8 h-8 text-[var(--text-muted)] mb-2" />
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    No recent updates
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-earth-50 flex items-center justify-center mb-4">
+                    <ClipboardList className="w-8 h-8 text-muted/40" />
+                  </div>
+                  <p className="text-sm font-bold text-primary mb-1">
+                    No recent activity
                   </p>
-                  <p className="text-xs text-[var(--text-muted)] mt-1">
-                    Start by updating one of your fields
+                  <p className="text-xs text-muted font-medium max-w-[180px]">
+                    Field updates will appear here as you log them.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-light before:content-['']">
                   {recentActivity.map((update, index) => (
-                    <div key={index} className="flex gap-3 group">
-                      <div className="flex flex-col items-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary-500)] mt-1 shrink-0 group-hover:scale-125 transition-transform" />
-                        {index < recentActivity.length - 1 && (
-                          <div className="w-px flex-1 bg-[var(--border-light)] mt-1" />
-                        )}
+                    <div key={index} className="flex gap-4 relative z-10 group cursor-pointer" onClick={() => navigate(`/fields/${update.field_id}`)}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm transition-transform group-hover:scale-110 ${index === 0 ? 'bg-primary-500 scale-110' : 'bg-earth-200'}`}>
+                         <div className={`w-1.5 h-1.5 rounded-full ${index === 0 ? 'bg-white animate-pulse' : 'bg-earth-500'}`} />
                       </div>
-                      <div className="flex-1 min-w-0 pb-3">
-                        <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                          {update.field_name}
-                        </p>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-xs text-[var(--text-secondary)]">Stage →</span>
-                          <Badge variant="success" size="sm">{update.stage}</Badge>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                           <p className="text-xs font-extrabold text-primary uppercase tracking-tight truncate">
+                             {update.field_name}
+                           </p>
+                           <time className="text-[10px] font-bold text-muted tabular-nums">
+                             {new Date(update.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                           </time>
                         </div>
-                        <p className="text-xs text-[var(--text-muted)] mt-1">
-                          {formatDate(update.created_at)}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-muted uppercase tracking-tighter">Transitioned to</span>
+                          <Badge variant={normalizeStatus(update.stage) === 'ready' ? 'success' : 'primary'} size="sm" className="font-bold">
+                            {update.stage}
+                          </Badge>
+                        </div>
+                        {update.notes && (
+                          <div className="mt-2 text-[11px] text-secondary bg-earth-50 p-2 rounded-lg border border-light/50 line-clamp-2 italic">
+                            "{update.notes}"
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+              </div>
+              
+              <div className="px-5 py-3 border-t border-light bg-earth-50/10">
+                 <button onClick={() => navigate('/agent/fields')} className="w-full text-[10px] font-extrabold uppercase tracking-widest text-primary-600 hover:text-primary-700 transition-colors">
+                    View Full History
+                 </button>
+              </div>
             </Card>
 
             {/* Quick Actions */}

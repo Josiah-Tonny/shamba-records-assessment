@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-// Access token stored in memory only (not localStorage)
+// Access token in memory (NOT localStorage)
 let accessToken = null;
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
-  withCredentials: true, // Sends httpOnly cookies automatically
+  // Direct backend URL - use environment variable or fallback to same-origin /api
+  baseURL: (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) 
+    ? import.meta.env.VITE_API_URL 
+    : '/api',
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -25,40 +28,45 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    // Handle 401 with refresh
+    // CRITICAL FIX: Don't retry if already retried or if it's a refresh/auth endpoint
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
       
+      // Don't retry login, refresh or me endpoints (prevents infinite loop/unnecessary refresh)
+      if (originalRequest.url.includes('/auth/login') ||
+          originalRequest.url.includes('/auth/refresh') || 
+          originalRequest.url.includes('/auth/me')) {
+        console.log('Auth endpoint failed, not retrying:', originalRequest.url);
+        accessToken = null;
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+
       try {
-        // Call refresh endpoint - httpOnly cookie sent automatically
+        const refreshBaseURL = (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) 
+          ? import.meta.env.VITE_API_URL 
+          : '/api';
+
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/refresh`,
+          `${refreshBaseURL}/auth/refresh`,
           {},
           { withCredentials: true }
         );
         
-        // Store new access token in memory
         accessToken = response.data.accessToken;
-        
-        // Retry original request
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Clear memory and redirect
+        console.log('Refresh failed, logging out');
         accessToken = null;
-        window.location.href = '/login';
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
-      }
-    }
-    
-    // Normalize error format - ensure error message is a string
-    if (error.response?.data) {
-      const data = error.response.data;
-      // If error is an object, extract message or stringify
-      if (typeof data.error === 'object') {
-        error.response.data.error = data.error.message || JSON.stringify(data.error);
-      } else if (!data.error) {
-        error.response.data.error = 'An error occurred';
       }
     }
     

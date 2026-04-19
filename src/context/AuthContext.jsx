@@ -1,19 +1,23 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api, { setAccessToken, clearAccessToken } from '../services/api';
+import { AuthContext } from './AuthContextObject';
 
-export const AuthContext = createContext(null);
-
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const checkedRef = useRef(false); // Prevent multiple checks
 
-  // Check auth status on mount
   useEffect(() => {
+    // Only check auth once on mount
+    if (checkedRef.current) return;
+    checkedRef.current = true;
+
     const checkAuth = async () => {
       try {
-        const response = await api.get('/api/auth/me');
+        const response = await api.get('/auth/me');
         setUser(response.data.user);
-      } catch (error) {
+      } catch {
+        // console.log('Not authenticated');
         setUser(null);
       } finally {
         setLoading(false);
@@ -21,10 +25,10 @@ export const AuthProvider = ({ children }) => {
     };
     
     checkAuth();
-  }, []);
+  }, []); // Empty dependency array = run once only
 
   const login = async (email, password) => {
-    const response = await api.post('/api/auth/login', { email, password });
+    const response = await api.post('/auth/login', { email, password });
     const { accessToken, user } = response.data;
     
     // Store in memory only (NOT localStorage)
@@ -35,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password, role = 'agent') => {
-    const response = await api.post('/api/auth/register', { 
+    const response = await api.post('/auth/register', { 
       name, 
       email, 
       password, 
@@ -46,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/api/auth/logout');
+      await api.post('/auth/logout');
     } finally {
       clearAccessToken();
       setUser(null);
@@ -66,15 +70,9 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
+export default AuthProvider;

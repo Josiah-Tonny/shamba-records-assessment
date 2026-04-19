@@ -1,4 +1,3 @@
-import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import pool from './db.js';
 
@@ -11,7 +10,7 @@ const seedDatabase = async () => {
     const agentPassword = await bcrypt.hash('Agent@1234', 10);
 
     // Seed users
-    const usersResult = await pool.query(
+    await pool.query(
       `INSERT INTO users (name, email, password, role)
        VALUES
          ($1, $2, $3, $4),
