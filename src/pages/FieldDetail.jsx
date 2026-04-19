@@ -94,8 +94,8 @@ const FieldDetail = () => {
   if (error && !field) {
     return (
       <SidebarLayout>
-        <div className="max-w-4xl mx-auto py-8 px-4">
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 animate-shake">
+        <div className="max-w-4xl px-4 py-8 mx-auto">
+          <div className="flex items-start gap-3 p-4 border border-red-200 rounded-xl bg-red-50 animate-shake">
             <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <p className="text-sm text-red-700">{error}</p>
           </div>
@@ -107,7 +107,7 @@ const FieldDetail = () => {
   if (!field) {
     return (
       <SidebarLayout>
-        <div className="max-w-4xl mx-auto py-8 px-4 text-center text-secondary">
+        <div className="max-w-4xl px-4 py-8 mx-auto text-center text-secondary">
           Field not found
         </div>
       </SidebarLayout>
@@ -118,7 +118,7 @@ const FieldDetail = () => {
 
   return (
     <SidebarLayout>
-      <div className="max-w-4xl mx-auto py-6 px-4 animate-fade-in stagger-1">
+      <div className="max-w-4xl px-4 py-6 mx-auto animate-fade-in stagger-1">
 
         {/* ── Back Button ── */}
         <button
@@ -133,19 +133,19 @@ const FieldDetail = () => {
 
         {/* ── Error Banner (non-fatal, e.g. failed to post update) ── */}
         {error && (
-          <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 animate-shake" role="alert" aria-live="polite">
+          <div className="flex items-start gap-3 p-4 mb-6 border border-red-200 rounded-xl bg-red-50 animate-shake" role="alert" aria-live="polite">
             <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
         {/* ── Field Header Card ── */}
-        <div className="bg-white rounded-3xl border border-light shadow-2xl shadow-brand-lg p-8 mb-8 overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <Sprout className="w-48 h-48 -mr-12 -mt-12" />
+        <div className="relative p-8 mb-8 overflow-hidden bg-white border shadow-2xl rounded-3xl border-light shadow-brand-lg">
+          <div className="absolute top-0 right-0 p-4 pointer-events-none opacity-5">
+            <Sprout className="w-48 h-48 -mt-12 -mr-12" />
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
+          <div className="relative z-10 flex flex-col justify-between gap-6 mb-10 md:flex-row md:items-center">
             <div className="space-y-2">
               <div className="flex items-center gap-3 mb-1">
                 <div className="px-3 py-1 rounded-full bg-primary-ghost text-primary-mid text-[10px] font-extrabold uppercase tracking-widest border border-border-light">
@@ -153,7 +153,7 @@ const FieldDetail = () => {
                 </div>
                 <FieldStatusBadge status={field.status} />
               </div>
-              <h1 className="text-4xl font-extrabold text-text tracking-tight">
+              <h1 className="text-4xl font-extrabold tracking-tight text-text">
                 {field.name}
               </h1>
               <div className="flex items-center gap-2 text-muted font-bold text-[10px] uppercase tracking-widest">
@@ -162,20 +162,20 @@ const FieldDetail = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-surface-2 p-4 rounded-2xl border border-light">
+            <div className="flex items-center gap-4 p-4 border bg-surface-2 rounded-2xl border-light">
                <div className="text-right">
                   <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Current Cycle State</p>
-                  <p className="text-xl font-black text-primary uppercase tracking-tighter tabular-nums">
+                  <p className="text-xl font-black tracking-tighter uppercase text-primary tabular-nums">
                     {stageIcon(field.stage)} {field.stage}
                   </p>
                </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
+          <div className="relative z-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {/* Planting Date */}
-            <div className="p-4 rounded-2xl bg-white border border-light shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary-ghost flex items-center justify-center text-primary shadow-inner">
+            <div className="flex items-center gap-4 p-4 bg-white border shadow-sm rounded-2xl border-light">
+              <div className="flex items-center justify-center w-12 h-12 shadow-inner rounded-xl bg-primary-ghost text-primary">
                 <CalendarDays className="w-6 h-6" />
               </div>
               <div>
@@ -189,8 +189,8 @@ const FieldDetail = () => {
             </div>
 
             {/* Growth Stage */}
-            <div className="p-4 rounded-2xl bg-white border border-light shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary-ghost flex items-center justify-center text-primary shadow-inner">
+            <div className="flex items-center gap-4 p-4 bg-white border shadow-sm rounded-2xl border-light">
+              <div className="flex items-center justify-center w-12 h-12 shadow-inner rounded-xl bg-primary-ghost text-primary">
                 <Sprout className="w-6 h-6" />
               </div>
               <div>
@@ -205,8 +205,8 @@ const FieldDetail = () => {
 
             {/* Assigned Agent */}
             {field.assigned_to_name && (
-              <div className="p-4 rounded-2xl bg-white border border-light shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary-ghost flex items-center justify-center text-primary shadow-inner">
+              <div className="flex items-center gap-4 p-4 bg-white border shadow-sm rounded-2xl border-light">
+                <div className="flex items-center justify-center w-12 h-12 shadow-inner rounded-xl bg-primary-ghost text-primary">
                   <User className="w-6 h-6" />
                 </div>
                 <div>
@@ -222,21 +222,21 @@ const FieldDetail = () => {
           </div>
 
           {/* Stage Progress Bar */}
-          <div className="mt-10 px-2">
+          <div className="px-2 mt-10">
             <GrowthProgress currentStage={field.stage} />
           </div>
         </div>
 
         {/* ── Agent Update Form ── */}
         {isAssignedAgent && (
-          <Card className="mb-8 border-light shadow-xl shadow-brand-md overflow-hidden" padding="none">
-            <div className="bg-surface-2 px-6 py-4 border-b border-light flex items-center justify-between">
+          <Card className="mb-8 overflow-hidden shadow-xl border-light shadow-brand-md" padding="none">
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-surface-2 border-light">
                <h3 className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-primary">Log Site Intervention</h3>
                <Badge variant="primary" size="sm">Active Session</Badge>
             </div>
             <CardContent className="p-6">
               <form onSubmit={handlePostUpdate} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div className="md:col-span-1 space-y-1.5">
                     <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Observed Stage</label>
                     <div className="relative">
@@ -254,7 +254,7 @@ const FieldDetail = () => {
                           </option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                      <ChevronDown className="absolute w-4 h-4 -translate-y-1/2 pointer-events-none right-3 top-1/2 text-muted" />
                     </div>
                   </div>
                   <div className="md:col-span-2 space-y-1.5">
@@ -270,8 +270,8 @@ const FieldDetail = () => {
                   </div>
                 </div>
                 <div className="flex justify-end pt-2">
-                  <Button type="submit" disabled={submitting} variant="primary" className="px-8 py-3 rounded-xl shadow-lg active:scale-95 transition-all">
-                    <span className="font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                  <Button type="submit" disabled={submitting} variant="primary" className="px-8 py-3 transition-all shadow-lg rounded-xl active:scale-95">
+                    <span className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase">
                       <CheckCircle className="w-4 h-4" />
                       {submitting ? 'Committing...' : 'Commit Observation'}
                     </span>
@@ -283,9 +283,9 @@ const FieldDetail = () => {
         )}
 
         {/* ── Update History ── */}
-        <div className="bg-surface rounded-2xl border border-light shadow-sm p-6">
-          <h2 className="text-base font-bold text-text mb-5 flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center" aria-hidden="true">
+        <div className="p-6 border shadow-sm bg-surface rounded-2xl border-light">
+          <h2 className="flex items-center gap-2 mb-5 text-base font-bold text-text">
+            <span className="flex items-center justify-center rounded-lg w-7 h-7 bg-surface-2" aria-hidden="true">
               <ClipboardList className="w-3.5 h-3.5 text-text-secondary" />
             </span>
             Update History
@@ -296,11 +296,11 @@ const FieldDetail = () => {
 
           {updates.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-surface-2 flex items-center justify-center mb-4 animate-float">
+              <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-surface-2 animate-float">
                 <ClipboardList className="w-8 h-8 text-muted" aria-hidden="true" />
               </div>
               <p className="text-sm text-text-secondary">No updates yet</p>
-              <p className="text-xs text-muted mt-1">Updates posted by the assigned agent will appear here</p>
+              <p className="mt-1 text-xs text-muted">Updates posted by the assigned agent will appear here</p>
             </div>
           ) : (
             <div className="space-y-0" role="list">
