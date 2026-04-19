@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -11,8 +11,26 @@ const Register = () => {
     role: 'agent'
   });
   const [loading, setLoading] = useState(false);
-  const { register, error } = useAuth();
+  const { register, error, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.role) {
+      return;
+    }
+
+    if (user.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
+      return;
+    }
+
+    if (user.role === 'agent') {
+      navigate('/agent/dashboard', { replace: true });
+      return;
+    }
+
+    navigate('/dashboard', { replace: true });
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -33,8 +51,7 @@ const Register = () => {
 
     try {
       await register(formData.name, formData.email, formData.password, formData.role);
-      navigate('/dashboard');
-    } catch (err) {
+    } catch {
       // Error is handled by AuthContext
     } finally {
       setLoading(false);

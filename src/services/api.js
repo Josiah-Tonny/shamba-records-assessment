@@ -13,6 +13,9 @@ let refreshCallback = null;
 let isRefreshing = false;
 let refreshSubscribers = [];
 
+// Store token in memory (not localStorage for security)
+let inMemoryToken = null;
+
 export const configureRefresh = (callback) => {
   refreshCallback = callback;
 };
@@ -29,9 +32,8 @@ const addRefreshSubscriber = (callback) => {
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (inMemoryToken) {
+      config.headers.Authorization = `Bearer ${inMemoryToken}`;
     }
     return config;
   },
@@ -60,7 +62,7 @@ api.interceptors.response.use(
 
       try {
         const newToken = await refreshCallback();
-        localStorage.setItem('accessToken', newToken);
+        inMemoryToken = newToken;
         api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         onTokenRefreshed(newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -77,11 +79,10 @@ api.interceptors.response.use(
 );
 
 export const setAuthToken = (token) => {
+  inMemoryToken = token;
   if (token) {
-    localStorage.setItem('accessToken', token);
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
-    localStorage.removeItem('accessToken');
     delete api.defaults.headers.common['Authorization'];
   }
 };

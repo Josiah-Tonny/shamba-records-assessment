@@ -45,15 +45,18 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    console.log('Login attempt - body:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
+      console.log('Missing fields - email:', email, 'password:', password ? '[present]' : '[missing]');
       return res.status(400).json({ success: false, error: 'Email and password are required' });
     }
 
     // Find user
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
+    console.log('User lookup:', user ? `found ${user.email}` : 'not found');
 
     if (!user) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -177,4 +180,20 @@ const getMe = async (req, res) => {
   }
 };
 
-export { register, login, logout, refresh, getMe };
+const getAgents = async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, name, email FROM users WHERE role = $1 ORDER BY name ASC',
+      ['agent']
+    );
+    res.json({
+      success: true,
+      data: { agents: result.rows }
+    });
+  } catch (error) {
+    console.error('Get agents error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+};
+
+export { register, login, logout, refresh, getMe, getAgents };

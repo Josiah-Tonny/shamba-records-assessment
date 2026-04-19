@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 .env
+test-login.js
+create-tables.js
+check-db.js
+.env
+AGENTS.md
+DEVELOPMENT.md

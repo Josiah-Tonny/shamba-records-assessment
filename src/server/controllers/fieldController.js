@@ -176,10 +176,10 @@ const deleteField = async (req, res) => {
   }
 };
 
-// Helper function to compute field status
+// Helper function to compute field status (returns lowercase snake_case)
 const computeStatus = (field) => {
   if (field.stage === 'harvested') {
-    return 'Completed';
+    return 'completed';
   }
 
   if (['planted', 'growing'].includes(field.stage)) {
@@ -188,11 +188,11 @@ const computeStatus = (field) => {
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
     if (plantingDate < ninetyDaysAgo) {
-      return 'At Risk';
+      return 'at_risk';
     }
   }
 
-  return 'Active';
+  return 'active';
 };
 
 export { getAllFields, getMyFields, getFieldById, createField, updateField, deleteField };

@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, logout, refresh, getMe } from '../controllers/authController.js';
+import { register, login, logout, refresh, getMe, getAgents } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -12,5 +12,6 @@ router.post('/refresh', refresh); // Refresh endpoint doesn't need auth middlewa
 // Protected routes
 router.post('/logout', authenticateToken, logout);
 router.get('/me', authenticateToken, getMe);
+router.get('/agents', authenticateToken, getAgents); // Admin: get all agents for field assignment
 
-export default router;
+export default router;
