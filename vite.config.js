@@ -8,6 +8,9 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  const backendPort = env.PORT || '3001';
+  const apiProxyTarget = env.API_PROXY_TARGET || `http://localhost:${backendPort}`;
+
   return {
     plugins: [react()],
     define: {
@@ -15,12 +18,25 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, './src'),
       },
     },
     server: {
-      middlewareMode: true,
-      hmr: process.env.DISABLE_HMR !== 'true',
+      host: '0.0.0.0',
+      port: 3000,
+      strictPort: true,
+      proxy: {
+        '/api': {
+          target: apiProxyTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+    preview: {
+      host: '0.0.0.0',
+      port: 3000,
+      strictPort: true,
     },
   };
 });
