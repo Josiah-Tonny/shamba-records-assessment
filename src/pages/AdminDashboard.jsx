@@ -9,6 +9,7 @@ import SidebarLayout from '../components/layout/SidebarLayout';
 import FieldCard from '../components/fields/FieldCard';
 import StatCard from '../components/ui/StatCard';
 import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
 import Card, { CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import LoadingSpinner from '../components/ui/LoadingSpinner';

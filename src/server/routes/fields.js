@@ -32,7 +32,12 @@ router.get('/mine', authenticate, async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT f.*, u.name as agent_name 
+      `SELECT f.*, u.name as agent_name, u.name as assigned_to_name,
+       CASE 
+         WHEN f.stage = 'harvested' THEN 'completed'
+         WHEN (f.stage IN ('planted', 'growing') AND f.planting_date < NOW() - INTERVAL '30 days') THEN 'at_risk'
+         ELSE 'active'
+       END as status
        FROM fields f 
        LEFT JOIN users u ON f.assigned_to = u.id 
        WHERE f.assigned_to = $1 
@@ -55,7 +60,12 @@ router.get('/', authenticate, async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT f.*, u.name as agent_name 
+      `SELECT f.*, u.name as agent_name, u.name as assigned_to_name,
+       CASE 
+         WHEN f.stage = 'harvested' THEN 'completed'
+         WHEN (f.stage IN ('planted', 'growing') AND f.planting_date < NOW() - INTERVAL '30 days') THEN 'at_risk'
+         ELSE 'active'
+       END as status
        FROM fields f 
        LEFT JOIN users u ON f.assigned_to = u.id 
        ORDER BY f.created_at DESC`
@@ -72,7 +82,12 @@ router.get('/', authenticate, async (req, res) => {
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT f.*, u.name as assigned_to_name 
+      `SELECT f.*, u.name as assigned_to_name,
+       CASE 
+         WHEN f.stage = 'harvested' THEN 'completed'
+         WHEN (f.stage IN ('planted', 'growing') AND f.planting_date < NOW() - INTERVAL '30 days') THEN 'at_risk'
+         ELSE 'active'
+       END as status
        FROM fields f 
        LEFT JOIN users u ON f.assigned_to = u.id 
        WHERE f.id = $1`,

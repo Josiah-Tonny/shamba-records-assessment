@@ -14,11 +14,23 @@ const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
       try {
+        // Try to get current user
         const response = await api.get('/auth/me');
         setUser(response.data.user);
-      } catch {
-        // console.log('Not authenticated');
-        setUser(null);
+      } catch (err) {
+        // If 401, try to refresh token
+        if (err.response?.status === 401) {
+          try {
+            const refreshResponse = await api.post('/auth/refresh', {});
+            setAccessToken(refreshResponse.data.accessToken);
+            const meResponse = await api.get('/auth/me');
+            setUser(meResponse.data.user);
+          } catch (refreshErr) {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }

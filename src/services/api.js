@@ -36,11 +36,10 @@ api.interceptors.response.use(
           originalRequest.url.includes('/auth/refresh') || 
           originalRequest.url.includes('/auth/me')) {
         console.log('Auth endpoint failed, not retrying:', originalRequest.url);
-        accessToken = null;
-        // Only redirect if not already on login page
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
-        }
+        
+        // If it's not a login attempt and we're not on the login page, 
+        // we might want to redirect, but NOT if we're in the middle of a checkAuth
+        // Let the caller handle the error.
         return Promise.reject(error);
       }
 

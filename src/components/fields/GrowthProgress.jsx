@@ -13,8 +13,8 @@ const GrowthProgress = ({ currentStage }) => {
   const currentIdx = STAGES.indexOf(currentStage);
 
   return (
-    <div className="mt-6 pt-5 border-t border-[var(--border-light)]" role="progressbar" aria-valuenow={currentIdx + 1} aria-valuemin="1" aria-valuemax={STAGES.length} aria-label="Growth progress">
-      <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+    <div className="mt-6 pt-5 border-t border-light" role="progressbar" aria-valuenow={currentIdx + 1} aria-valuemin="1" aria-valuemax={STAGES.length} aria-label="Growth progress">
+      <p className="text-xs font-medium text-muted uppercase tracking-wide mb-3">
         Growth Progress
       </p>
       <div className="flex items-center gap-0">
@@ -28,9 +28,9 @@ const GrowthProgress = ({ currentStage }) => {
               <div className="flex flex-col items-center flex-1">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
-                    ${isCurrent ? 'bg-[var(--primary-600)] border-[var(--primary-600)] text-white scale-110 shadow-md' : ''}
-                    ${isPast ? 'bg-[var(--primary-500)] border-[var(--primary-500)] text-white' : ''}
-                    ${isFuture ? 'bg-[var(--bg-secondary)] border-[var(--border-default)] text-[var(--text-muted)]' : ''}
+                    ${isCurrent ? 'bg-primary-600 border-primary-600 text-white scale-110 shadow-md' : ''}
+                    ${isPast ? 'bg-primary-500 border-primary-500 text-white' : ''}
+                    ${isFuture ? 'bg-earth-50 border-light text-muted' : ''}
                   `}
                   aria-current={isCurrent ? 'step' : undefined}
                 >
@@ -38,9 +38,9 @@ const GrowthProgress = ({ currentStage }) => {
                 </div>
                 <p
                   className={`text-xs mt-1.5 font-medium capitalize
-                    ${isCurrent ? 'text-[var(--primary-600)]' : ''}
-                    ${isPast ? 'text-[var(--text-secondary)]' : ''}
-                    ${isFuture ? 'text-[var(--text-muted)]' : ''}
+                    ${isCurrent ? 'text-primary-600' : ''}
+                    ${isPast ? 'text-earth-700' : ''}
+                    ${isFuture ? 'text-muted' : ''}
                   `}
                 >
                   {stage}
@@ -49,7 +49,7 @@ const GrowthProgress = ({ currentStage }) => {
               {idx < STAGES.length - 1 && (
                 <div
                   className={`h-0.5 flex-1 -mt-5 mx-1 rounded
-                    ${idx < currentIdx ? 'bg-[var(--primary-500)]' : 'bg-[var(--border-default)]'}
+                    ${idx < currentIdx ? 'bg-primary-500' : 'bg-light'}
                   `}
                   aria-hidden="true"
                 />
