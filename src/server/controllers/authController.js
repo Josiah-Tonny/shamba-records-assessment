@@ -15,6 +15,16 @@ const register = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid role' });
     }
 
+    // Password policy validation
+    // Minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 number'
+      });
+    }
+
     // Check if user already exists
     const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
