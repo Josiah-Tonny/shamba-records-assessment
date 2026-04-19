@@ -29,10 +29,10 @@ A modern full-stack web application for managing agricultural fields and monitor
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 20+ (recommended: Node.js 24.x for Vercel compatibility)
 - npm or yarn
-- A Neon PostgreSQL database account
-- A Vercel account (for deployment)
+- A Neon PostgreSQL database account (free tier available)
+- A Vercel account (free tier available for deployment)
 
 ### Local Development
 
@@ -51,19 +51,26 @@ A modern full-stack web application for managing agricultural fields and monitor
    Update `.env` with your values:
    ```env
    DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
-   JWT_SECRET=your_super_secret_key_here
-   JWT_REFRESH_SECRET=another_secret_key_here
+   JWT_SECRET=your_super_secret_key_here (minimum 32 characters)
+   JWT_REFRESH_SECRET=another_secret_key_here (minimum 32 characters)
    PORT=3001
    NODE_ENV=development
    VITE_API_URL=http://localhost:3001
+   ```
+
+   **Important**: Generate secure random secrets using:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
 3. **Create database schema**
    ```bash
    node create-tables.js
    ```
+   
+   Or manually run the SQL in Neon's SQL Editor (schema in `create-tables.js`).
 
-4. **Seed demo data**
+4. **Seed demo data** (optional but recommended for testing)
    ```bash
    node src/server/seed.js
    ```
@@ -75,13 +82,52 @@ A modern full-stack web application for managing agricultural fields and monitor
 
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:3001
+   - Health check: http://localhost:3001/api/health
+
+### Vercel Deployment
+
+1. **Push code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin master
+   ```
+
+2. **Connect to Vercel**
+   - Go to https://vercel.com/new
+   - Import this GitHub repository
+   - Vercel will auto-detect the configuration via `vercel.json`
+
+3. **Set Environment Variables in Vercel Dashboard**
+   Navigate to: Project Settings → Environment Variables
+   ```
+   DATABASE_URL=postgresql://... (from Neon)
+   JWT_SECRET=your_secure_random_secret
+   JWT_REFRESH_SECRET=another_secure_random_secret
+   FRONTEND_URL=https://your-app.vercel.app
+   NODE_ENV=production
+   ```
+
+4. **Deploy**
+   - Vercel will auto-deploy on git push
+   - Monitor build logs in Vercel dashboard
 
 ## Demo Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@smartseason.com | Admin@1234 |
-| Agent | agent@smartseason.com | Agent@1234 |
+Use these credentials to test the application (pre-seeded in database):
+
+| Role | Email | Password | Permissions |
+|------|-------|----------|-------------|
+| Admin | admin@smartseason.com | Admin@1234 | Full access: Create/edit/delete fields, view all agents, assign fields |
+| Agent | agent@smartseason.com | Agent@1234 | Limited access: View assigned fields, post updates, view field history |
+
+**Testing Checklist:**
+- [ ] Login as Admin → Create a new field → Assign to Agent
+- [ ] Login as Agent → View assigned field → Post update → Change stage
+- [ ] Login as Admin → View field status (should reflect Agent's update)
+- [ ] Test field status calculation (plant a field, wait 90+ days, check "At Risk" status)
+- [ ] Test JWT refresh (wait 1 hour, verify auto-refresh works)
+- [ ] Test role-based access (Agent cannot access Admin dashboard)
 
 ## API Endpoints
 
