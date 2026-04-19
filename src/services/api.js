@@ -25,6 +25,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Handle 401 with refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
@@ -47,6 +48,17 @@ api.interceptors.response.use(
         accessToken = null;
         window.location.href = '/login';
         return Promise.reject(refreshError);
+      }
+    }
+    
+    // Normalize error format - ensure error message is a string
+    if (error.response?.data) {
+      const data = error.response.data;
+      // If error is an object, extract message or stringify
+      if (typeof data.error === 'object') {
+        error.response.data.error = data.error.message || JSON.stringify(data.error);
+      } else if (!data.error) {
+        error.response.data.error = 'An error occurred';
       }
     }
     

@@ -11,9 +11,10 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy (required for Vercel)
 app.set('trust proxy', 1);
 
-// Security headers
+// Security: Helmet headers
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -27,12 +28,12 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS
+// Security: CORS
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   process.env.FRONTEND_URL
-].filter(Boolean);
+].filter((v, i, a) => v && a.indexOf(v) === i);
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -54,28 +55,31 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-// Rate limiting - ONLY for auth endpoints, not all API
+// Request logging (remove in production if too verbose)
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  next();
+});
+
+// Rate limiting - ONLY for auth endpoints
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts (increased from 5)
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   message: { success: false, error: 'Too many attempts, try again later' },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.method === 'OPTIONS' // Skip preflight
 });
 
-// Apply rate limiting ONLY to specific auth routes
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
-// Routes - BEFORE any catch-all limiting
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/fields', fieldRoutes);
 
-// Health check - NO rate limiting
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
-    success: true,
     status: 'ok', 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
@@ -83,24 +87,35 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 404 handler
+// 404 handler - use path pattern, not *
 app.use((req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found', path: req.path });
+  res.status(404).json({ 
+    success: false, 
+    error: 'Route not found',
+    path: req.path,
+    method: req.method
+  });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  const message = process.env.NODE_ENV === 'production' 
-    ? 'Internal server error' 
-    : err.message;
+  
+  let message = 'Internal server error';
+  if (process.env.NODE_ENV !== 'production') {
+    message = err.message || String(err);
+  }
+  if (typeof message === 'object') {
+    message = JSON.stringify(message);
+  }
+  
   res.status(err.status || 500).json({
     success: false,
     error: message
   });
 });
 
-// Local dev
+// Local dev only
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
