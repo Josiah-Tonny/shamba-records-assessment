@@ -6,8 +6,8 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
 const ROLES = [
-  { value: 'agent', label: 'Field Agent',    description: 'Monitor and update assigned fields' },
-  { value: 'admin', label: 'Administrator',  description: 'Manage all fields, agents and reports' },
+  { value: 'agent', label: 'Field Agent', description: 'Monitor and update assigned fields' },
+  { value: 'admin', label: 'Administrator', description: 'Manage all fields, agents and reports' },
 ];
 
 const Register = () => {
@@ -18,20 +18,16 @@ const Register = () => {
     confirmPassword: '',
     role: 'agent',
   });
-  const [passwordError, setPasswordError]       = useState('');
-  const [error, setError]                     = useState('');
-  const [loading, setLoading]                 = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { register, login, user } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate(
-        user.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard',
-        { replace: true }
-      );
+      navigate(user.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
@@ -50,7 +46,6 @@ const Register = () => {
     const hasLower = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecial = /[@$!%*?&]/.test(password);
-    
     return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
   };
 
@@ -64,17 +59,14 @@ const Register = () => {
     }
 
     if (!validatePassword(formData.password)) {
-      setPasswordError('Security requirement: 8+ chars, uppercase, lowercase, number, symbol');
+      setPasswordError('Password must have 8+ chars, uppercase, lowercase, number, and symbol');
       return;
     }
 
     setLoading(true);
     try {
       await register(formData.name, formData.email, formData.password, formData.role);
-      
-      // Auto-login after registration
       await login(formData.email, formData.password);
-      
       navigate(formData.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
@@ -83,183 +75,160 @@ const Register = () => {
     }
   };
 
-
   return (
-    <div className="auth-layout">
-      {/* Left Side - Image/Content (Desktop) */}
-      <div className="auth-side animate-fade-in">
-        <div className="auth-side-bg">
+    <div className="min-h-screen flex bg-gradient-to-br from-green-50 via-white to-amber-50">
+      {/* Left Side - Branding (Desktop) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 to-green-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
           <img 
             src="https://images.unsplash.com/photo-1594919507949-1667d4f90117?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
-            alt="Farming community" 
-            referrerPolicy="no-referrer"
+            alt="Agriculture" 
+            className="w-full h-full object-cover"
           />
         </div>
-        <div className="auth-side-overlay" />
-        
-        <div className="auth-side-content">
-          <div className="auth-side-logo">
-            <div className="auth-side-logo-icon">
-              <Sprout size={24} />
+        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+              <Sprout size={28} />
             </div>
-            <h1>Shamba Records</h1>
+            <h1 className="text-2xl font-bold">Shamba Records</h1>
           </div>
-          
-          <div className="auth-side-hero">
-            <div className="animate-slide-up stagger-1">
-              <h2>Join Our Agricultural Network.</h2>
-            </div>
-            <div className="animate-slide-up stagger-2">
-              <p>
-                Take the first step towards smarter field management. Connect 
-                with agents, monitor crop progress, and scale your operations.
-              </p>
-            </div>
+          <h2 className="text-4xl font-bold mb-4">Join Our Agricultural Network</h2>
+          <p className="text-green-100 text-lg max-w-md">
+            Take the first step towards smarter field management. Connect with agents and scale your operations.
+          </p>
+          <div className="mt-auto pt-8 text-green-200 text-sm">
+            &copy; 2026 Shamba Records
           </div>
-        </div>
-        
-        <div className="auth-side-footer animate-fade-in stagger-3">
-          &copy; 2026 Shamba Records. Professional Field Management.
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="auth-content overflow-y-auto">
-        <div className="auth-form-container my-12">
+      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
+        <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="auth-mobile-logo animate-fade-in border-b border-light pb-6 mb-8 w-full flex justify-center">
-             <div className="flex items-center gap-3">
-                <div className="auth-mobile-logo-icon bg-primary-600 shadow-lg shadow-primary-500/20">
-                  <Sprout size={20} className="text-white" />
-                </div>
-                <h1 className="text-xl font-black tracking-tighter text-primary">Shamba Records</h1>
-             </div>
+          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
+            <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+              <Sprout size={28} className="text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800">Shamba Records</h1>
           </div>
 
-          <div className="auth-header animate-slide-up stagger-1">
-            <h2 className="text-3xl font-black text-primary tracking-tighter">Create Account</h2>
-            <p className="text-secondary font-medium">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
+            <p className="text-gray-600 mb-6">
               Join our network or{' '}
-              <Link to="/login" className="text-primary-600 font-bold hover:underline underline-offset-4 decoration-2">sign in if you have an account</Link>
+              <Link to="/login" className="text-green-600 font-semibold hover:underline">sign in if you have an account</Link>
             </p>
-          </div>
 
-          <form className="space-y-6 animate-slide-up stagger-2" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Input
-                label="Full Name"
-                name="name"
-                type="text"
-                icon={User}
-                required
-                placeholder="First and last name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-
-              <Input
-                label="Email Address"
-                name="email"
-                type="email"
-                icon={Mail}
-                required
-                placeholder="email@example.com"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Input
-                label="Password"
-                name="password"
-                type="password"
-                icon={Lock}
-                required
-                placeholder="Secret phrase"
-                value={formData.password}
-                onChange={handleChange}
-              />
-
-              <Input
-                label="Confirm Password"
-                name="confirmPassword"
-                type="password"
-                icon={ShieldCheck}
-                required
-                placeholder="Repeat phrase"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                error={passwordError}
-              />
-            </div>
-
-            {/* Role Selection */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                 <ShieldCheck className="w-3.5 h-3.5 text-primary-600" />
-                 Designated Operational Role
-              </label>
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {ROLES.map((role) => (
-                  <label
-                    key={role.value}
-                    className={`group flex flex-col gap-2 p-4 rounded-3xl border-2 cursor-pointer transition-all duration-500 relative overflow-hidden
-                      ${formData.role === role.value
-                        ? 'border-primary-600 bg-white shadow-xl shadow-primary-900/5 ring-1 ring-primary-600'
-                        : 'border-light bg-earth-50/30 hover:border-primary-300 hover:bg-white'
-                      }`}
-                  >
-                    <input
-                      type="radio"
-                      name="role"
-                      value={role.value}
-                      checked={formData.role === role.value}
-                      onChange={handleChange}
-                      className="sr-only"
-                    />
-                    
-                    {formData.role === role.value && (
-                       <div className="absolute top-0 right-0 w-12 h-12 bg-primary-600 rounded-bl-[100%] flex items-center justify-center pl-3 pb-3">
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                       </div>
-                    )}
+                <Input
+                  label="Full Name"
+                  name="name"
+                  type="text"
+                  icon={User}
+                  required
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
 
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className={`text-xs font-black uppercase tracking-widest ${
-                        formData.role === role.value ? 'text-primary-600' : 'text-primary-800'
-                      }`}>
-                        {role.label}
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-medium leading-relaxed text-secondary/80 relative z-10">
-                      {role.description}
-                    </span>
-                    
-                    {/* Hover Decoration */}
-                    <div className={`absolute -bottom-6 -right-6 w-16 h-16 rounded-full blur-2xl transition-all duration-500
-                      ${formData.role === role.value ? 'bg-primary-100 opacity-100' : 'bg-primary-50 opacity-0 group-hover:opacity-100'}`} />
-                  </label>
-                ))}
+                <Input
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  icon={Mail}
+                  required
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
               </div>
-            </div>
 
-            {error && (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-error-50 border border-error-100 text-error-700 animate-shake shadow-sm">
-                <AlertCircle size={18} className="shrink-0" />
-                <span className="text-xs font-bold uppercase tracking-wide">{error}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Password"
+                  name="password"
+                  type="password"
+                  icon={Lock}
+                  required
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+
+                <Input
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  type="password"
+                  icon={ShieldCheck}
+                  required
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  error={passwordError}
+                />
               </div>
-            )}
 
-            <Button
-              type="submit"
-              isLoading={loading}
-              className="w-full mt-2 shadow-xl shadow-primary-500/10 active:scale-[0.98] transition-all"
-              size="lg"
-            >
-              Initialize Profile
-            </Button>
-          </form>
+              {/* Role Selection */}
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                  <ShieldCheck size={14} />
+                  Select Your Role
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {ROLES.map((role) => (
+                    <label
+                      key={role.value}
+                      className={`relative flex flex-col gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
+                        ${formData.role === role.value
+                          ? 'border-green-600 bg-green-50 shadow-sm'
+                          : 'border-gray-200 bg-gray-50 hover:border-green-300'
+                        }`}
+                    >
+                      <input
+                        type="radio"
+                        name="role"
+                        value={role.value}
+                        checked={formData.role === role.value}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      
+                      <div className="flex items-center justify-between">
+                        <span className={`text-sm font-bold ${
+                          formData.role === role.value ? 'text-green-700' : 'text-gray-700'
+                        }`}>
+                          {role.label}
+                        </span>
+                        {formData.role === role.value && (
+                          <CheckCircle2 size={18} className="text-green-600" />
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-600">{role.description}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                isLoading={loading}
+                className="w-full"
+                size="lg"
+              >
+                Create Account
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
