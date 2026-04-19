@@ -1,10 +1,10 @@
 const variantStyles = {
-  default: 'bg-earth-100 text-earth-700',
-  primary: 'bg-primary-100 text-primary-700',
-  success: 'bg-success-100 text-success-700',
-  warning: 'bg-warning-100 text-warning-700',
-  error: 'bg-error-100 text-error-700',
-  info: 'bg-info-100 text-info-700',
+  default: 'bg-amber-100 text-amber-700',
+  primary: 'bg-green-100 text-green-700',
+  success: 'bg-green-100 text-green-700',
+  warning: 'bg-amber-100 text-amber-700',
+  error: 'bg-red-100 text-red-700',
+  info: 'bg-blue-100 text-blue-700',
 };
 
 const sizeStyles = {

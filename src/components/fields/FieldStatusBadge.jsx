@@ -1,25 +1,25 @@
 const STATUS_MAP = {
   active: {
     label: 'Active',
-    dot:   'bg-[var(--primary-500)]',
-    pill:  'bg-[var(--primary-50)] text-[var(--primary-700)] border border-[var(--primary-200)]',
+    dot:   'bg-green-500',
+    pill:  'bg-green-50 text-green-700 border border-green-200',
   },
   at_risk: {
     label: 'At Risk',
-    dot:   'bg-[var(--warning-500,#f59e0b)]',
-    pill:  'bg-[var(--warning-50,#fffbeb)] text-[var(--warning-700,#b45309)] border border-[var(--warning-200,#fde68a)]',
+    dot:   'bg-amber-500',
+    pill:  'bg-amber-50 text-amber-700 border border-amber-200',
   },
   completed: {
     label: 'Completed',
-    dot:   'bg-[var(--success-500,#22c55e)]',
-    pill:  'bg-[var(--success-50,#f0fdf4)] text-[var(--success-700,#15803d)] border border-[var(--success-200,#bbf7d0)]',
+    dot:   'bg-green-500',
+    pill:  'bg-green-50 text-green-700 border border-green-200',
   },
 };
 
 const FALLBACK = {
   label: '',
-  dot:   'bg-[var(--border-default)]',
-  pill:  'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-light)]',
+  dot:   'bg-gray-400',
+  pill:  'bg-gray-100 text-gray-500 border border-gray-200',
 };
 
 const FieldStatusBadge = ({ status }) => {
