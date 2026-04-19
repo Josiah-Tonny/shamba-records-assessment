@@ -38,52 +38,51 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-green-50 via-white to-amber-50">
+    <div className="min-h-screen flex bg-gray-50">
       {/* Left Side - Branding (Desktop) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 to-green-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 to-emerald-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
           <img 
             src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
             alt="Agriculture" 
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-              <Sprout size={28} />
+        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+          <div className="flex items-center gap-4 mb-12">
+            <div className="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-lg">
+              <Sprout size={32} />
             </div>
-            <h1 className="text-2xl font-bold">Shamba Records</h1>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Shamba Records</h1>
+              <p className="text-emerald-200 text-sm font-medium">Field Management System</p>
+            </div>
           </div>
-          <h2 className="text-4xl font-bold mb-4">Empowering Modern Agriculture</h2>
-          <p className="text-green-100 text-lg max-w-md">
-            Efficiently manage crop seasons, track field agents, and optimize harvest results.
+          <h2 className="text-5xl font-bold mb-6 leading-tight">Empowering Modern Agriculture</h2>
+          <p className="text-emerald-100 text-lg max-w-lg leading-relaxed">
+            Efficiently manage crop seasons, track field agents, and optimize harvest results with our comprehensive platform.
           </p>
-          <div className="mt-auto pt-8 text-green-200 text-sm">
-            &copy; 2026 Shamba Records
-          </div>
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+          <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
+            <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
               <Sprout size={28} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">Shamba Records</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Shamba Records</h1>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-            <p className="text-gray-600 mb-6">
-              Sign in to manage your fields or{' '}
-              <Link to="/register" className="text-green-600 font-semibold hover:underline">create a new account</Link>
+          <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/50 p-8 lg:p-10">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+            <p className="text-gray-500 mb-8 text-lg">
+              Sign in to manage your fields
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <Input
                 label="Email Address"
                 name="email"
@@ -107,8 +106,8 @@ const Login = () => {
               />
 
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  <AlertCircle size={18} />
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                  <AlertCircle size={20} />
                   <span>{error}</span>
                 </div>
               )}
@@ -123,26 +122,29 @@ const Login = () => {
               </Button>
             </form>
 
+            <div className="mt-8 text-center">
+              <p className="text-gray-600">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-emerald-600 font-semibold hover:text-emerald-700">Sign up</Link>
+              </p>
+            </div>
+
             {/* Demo Credentials */}
-            <div className="mt-8 p-4 bg-green-50 rounded-xl border border-green-200">
-              <h3 className="text-xs font-bold text-green-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <div className="mt-8 p-5 bg-gray-50 rounded-2xl border border-gray-200">
+              <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <ShieldCheck size={16} />
-                Demo Credentials
+                Demo Accounts
               </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Admin:</span>
-                  <span className="font-mono text-gray-800">admin@smartseason.com / Admin@1234</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center py-2 px-3 bg-white rounded-lg border border-gray-200">
+                  <span className="text-gray-600 font-medium">Admin</span>
+                  <span className="font-mono text-gray-800 text-xs">admin@smartseason.com / Admin@1234</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Agent:</span>
-                  <span className="font-mono text-gray-800">agent@smartseason.com / Agent@1234</span>
+                <div className="flex justify-between items-center py-2 px-3 bg-white rounded-lg border border-gray-200">
+                  <span className="text-gray-600 font-medium">Agent</span>
+                  <span className="font-mono text-gray-800 text-xs">agent@smartseason.com / Agent@1234</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-3 flex items-center gap-1">
-                <Info size={12} />
-                For testing purposes only
-              </p>
             </div>
           </div>
         </div>

@@ -76,52 +76,51 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-green-50 via-white to-amber-50">
+    <div className="min-h-screen flex bg-gray-50">
       {/* Left Side - Branding (Desktop) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 to-green-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 to-emerald-800 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
           <img 
             src="https://images.unsplash.com/photo-1594919507949-1667d4f90117?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
             alt="Agriculture" 
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-              <Sprout size={28} />
+        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+          <div className="flex items-center gap-4 mb-12">
+            <div className="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-lg">
+              <Sprout size={32} />
             </div>
-            <h1 className="text-2xl font-bold">Shamba Records</h1>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Shamba Records</h1>
+              <p className="text-emerald-200 text-sm font-medium">Field Management System</p>
+            </div>
           </div>
-          <h2 className="text-4xl font-bold mb-4">Join Our Agricultural Network</h2>
-          <p className="text-green-100 text-lg max-w-md">
+          <h2 className="text-5xl font-bold mb-6 leading-tight">Join Our Agricultural Network</h2>
+          <p className="text-emerald-100 text-lg max-w-lg leading-relaxed">
             Take the first step towards smarter field management. Connect with agents and scale your operations.
           </p>
-          <div className="mt-auto pt-8 text-green-200 text-sm">
-            &copy; 2026 Shamba Records
-          </div>
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+          <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
+            <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
               <Sprout size={28} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">Shamba Records</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Shamba Records</h1>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
-            <p className="text-gray-600 mb-6">
-              Join our network or{' '}
-              <Link to="/login" className="text-green-600 font-semibold hover:underline">sign in if you have an account</Link>
+          <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/50 p-8 lg:p-10">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+            <p className="text-gray-500 mb-8 text-lg">
+              Join our network today
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Full Name"
@@ -181,10 +180,10 @@ const Register = () => {
                   {ROLES.map((role) => (
                     <label
                       key={role.value}
-                      className={`relative flex flex-col gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
+                      className={`relative flex flex-col gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all
                         ${formData.role === role.value
-                          ? 'border-green-600 bg-green-50 shadow-sm'
-                          : 'border-gray-200 bg-gray-50 hover:border-green-300'
+                          ? 'border-emerald-600 bg-emerald-50 shadow-md'
+                          : 'border-gray-200 bg-gray-50 hover:border-emerald-300 hover:bg-white'
                         }`}
                     >
                       <input
@@ -198,23 +197,23 @@ const Register = () => {
                       
                       <div className="flex items-center justify-between">
                         <span className={`text-sm font-bold ${
-                          formData.role === role.value ? 'text-green-700' : 'text-gray-700'
+                          formData.role === role.value ? 'text-emerald-700' : 'text-gray-700'
                         }`}>
                           {role.label}
                         </span>
                         {formData.role === role.value && (
-                          <CheckCircle2 size={18} className="text-green-600" />
+                          <CheckCircle2 size={20} className="text-emerald-600" />
                         )}
                       </div>
-                      <span className="text-xs text-gray-600">{role.description}</span>
+                      <span className="text-xs text-gray-600 leading-relaxed">{role.description}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  <AlertCircle size={18} />
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                  <AlertCircle size={20} />
                   <span>{error}</span>
                 </div>
               )}
@@ -228,6 +227,13 @@ const Register = () => {
                 Create Account
               </Button>
             </form>
+
+            <div className="mt-8 text-center">
+              <p className="text-gray-600">
+                Already have an account?{' '}
+                <Link to="/login" className="text-emerald-600 font-semibold hover:text-emerald-700">Sign in</Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

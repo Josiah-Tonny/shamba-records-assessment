@@ -9,7 +9,7 @@ const Card = ({ children, className = '', shadow = 'md' }) => {
 
   return (
     <div
-      className={`bg-primary rounded-xl border border-light transition-all duration-fast hover:shadow-md ${shadowStyles[shadow]} ${className}`}
+      className={`bg-white rounded-2xl border border-gray-200 transition-all duration-200 hover:shadow-lg ${shadowStyles[shadow]} ${className}`}
     >
       {children}
     </div>
