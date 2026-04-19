@@ -63,8 +63,8 @@ router.post('/login', loginValidation, async (req, res) => {
     // Set httpOnly cookie for refresh token
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true, // Always true for cross-site cookies
+      sameSite: 'none', // Required for cross-site cookies in some browsers
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -128,8 +128,8 @@ router.post('/register', registerValidation, async (req, res) => {
 router.post('/logout', (req, res) => {
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    secure: true,
+    sameSite: 'none'
   });
   
   res.json({ success: true, message: 'Logged out' });
