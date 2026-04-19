@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -k -n frontend,backend \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "vite --host 0.0.0.0 --port 3000",
-    "dev:backend": "nodemon --watch src/server --watch .env --ext js,json --exec \"node src/server/index.js\"",
+    "dev:frontend": "vite --host 0.0.0.0 --port 5173",
+    "dev:backend": "PORT=3000 nodemon --watch src/server --watch .env --ext js,json --exec \"node src/server/index.js\"",
     "build": "vite build",
     "start": "NODE_ENV=production node server.js",
     "test": "jest --testPathPattern=src/server",
     "lint": "eslint src",
-    "kill-port": "npx kill-port 3000 3001"
+    "kill-port": "npx kill-port 5173 3000"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.2",

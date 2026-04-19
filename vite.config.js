@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
-  const backendPort = env.PORT || '3001';
+  const backendPort = env.PORT || '3000';
   const apiProxyTarget = env.API_PROXY_TARGET || `http://localhost:${backendPort}`;
 
   return {
@@ -24,8 +24,8 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: '0.0.0.0',
-      port: 3000,
-      strictPort: false,
+      port: 5173,
+      strictPort: true,
       proxy: {
         '/api': {
           target: apiProxyTarget,
