@@ -10,6 +10,11 @@ import pool from './db.js';
 
 dotenv.config();
 
+// Force production mode for Vercel serverless
+if (process.env.VERCEL) {
+  process.env.NODE_ENV = 'production';
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
