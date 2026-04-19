@@ -107,33 +107,33 @@ const AdminDashboard = () => {
       <div className="flex flex-col h-full overflow-hidden">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between shrink-0 animate-fade-in stagger-1">
+      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between shrink-0 animate-fade-in">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg shadow-primary-900/20">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center shadow-lg">
              <LayoutDashboard className="w-7 h-7 text-white" />
           </div>
           <div>
             {isDashboardView && (
               <>
-                <h1 className="text-3xl font-extrabold text-primary tracking-tight leading-none">
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight leading-none">
                   Operations Center
                 </h1>
-                <p className="text-sm font-bold text-muted tracking-widest uppercase mt-1.5 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary-500" />
+                <p className="text-sm font-bold text-gray-500 tracking-widest uppercase mt-1.5 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500" />
                   Real-time Monitoring & Control
                 </p>
               </>
             )}
             {isFieldsView && (
               <>
-                <h1 className="text-3xl font-extrabold text-primary tracking-tight">Field Registry</h1>
-                <p className="text-sm font-bold text-muted tracking-widest uppercase mt-1.5">Inventory & Management</p>
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Field Registry</h1>
+                <p className="text-sm font-bold text-gray-500 tracking-widest uppercase mt-1.5">Inventory & Management</p>
               </>
             )}
             {isAgentsView && (
               <>
-                <h1 className="text-3xl font-extrabold text-primary tracking-tight">Agent Network</h1>
-                <p className="text-sm font-bold text-muted tracking-widest uppercase mt-1.5">Personnel Directory</p>
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Agent Network</h1>
+                <p className="text-sm font-bold text-gray-500 tracking-widest uppercase mt-1.5">Personnel Directory</p>
               </>
             )}
           </div>

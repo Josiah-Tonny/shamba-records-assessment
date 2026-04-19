@@ -69,32 +69,32 @@ const AgentDashboard = () => {
     <SidebarLayout>
 
       {/* ── Page Header ── */}
-      <div className="mb-10 animate-fade-in stagger-1">
+      <div className="mb-10 animate-fade-in">
         {(isDashboardView || isUpdatesView) && (
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-50 to-white border-2 border-white shadow-xl shadow-earth-200/50 flex items-center justify-center shrink-0">
-                <div className="w-12 h-12 rounded-xl bg-primary-600 flex items-center justify-center shadow-inner">
+              <div className="flex items-center justify-center w-16 h-16 border-2 border-white shadow-xl rounded-2xl bg-gradient-to-br from-green-50 to-white shrink-0">
+                <div className="flex items-center justify-center w-12 h-12 bg-green-600 shadow-inner rounded-xl">
                   <User className="w-6 h-6 text-white" />
                 </div>
               </div>
               <div>
-                <h1 className="text-3xl font-extrabold text-primary tracking-tight leading-none">
+                <h1 className="text-3xl font-extrabold leading-none tracking-tight text-gray-900">
                   Habari, {user?.name?.split(' ')[0]}!
                 </h1>
-                <p className="text-sm font-semibold text-muted tracking-wide uppercase mt-1.5 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
+                <p className="text-sm font-semibold text-gray-500 tracking-wide uppercase mt-1.5 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   Field Agent · {stats.total} Field{stats.total !== 1 ? 's' : ''} Managed
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-light shadow-sm self-start md:self-auto">
-               <div className="px-4 py-2 rounded-xl bg-earth-50 border border-light/50">
-                  <p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-0.5">Local Time</p>
-                  <p className="text-sm font-bold text-primary font-mono">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+            <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-gray-200 shadow-sm self-start md:self-auto">
+               <div className="px-4 py-2 border border-gray-200 rounded-xl bg-amber-50">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Local Time</p>
+                  <p className="font-mono text-sm font-bold text-gray-900">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
                </div>
-               <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600">
+               <div className="flex items-center justify-center w-12 h-12 text-green-600 rounded-xl bg-green-50">
                   <Calendar className="w-5 h-5" />
                </div>
             </div>
@@ -103,8 +103,8 @@ const AgentDashboard = () => {
         {isFieldsView && (
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-extrabold text-primary tracking-tight">Active Portfolio</h1>
-              <p className="text-sm font-semibold text-muted tracking-wide uppercase mt-1">
+              <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Active Portfolio</h1>
+              <p className="mt-1 text-sm font-semibold tracking-wide text-gray-500 uppercase">
                 Field Assignments & Status
               </p>
             </div>
@@ -114,12 +114,12 @@ const AgentDashboard = () => {
 
       {/* ── Error Banner ── */}
       {error && (
-        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-[var(--error-50)] border border-[var(--error-200)]" role="alert" aria-live="polite">
-          <AlertTriangle className="w-5 h-5 text-[var(--error-600)] shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-sm text-[var(--error-700)]">{error}</p>
+        <div className="flex items-start gap-3 p-4 mb-6 border border-red-200 rounded-xl bg-red-50" role="alert" aria-live="polite">
+          <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-sm text-red-700">{error}</p>
           <button
             onClick={retry}
-            className="ml-auto px-3 py-1.5 text-sm font-medium text-[var(--error-600)] hover:bg-[var(--error-100)] rounded-lg transition-colors"
+            className="ml-auto px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 rounded-lg transition-colors"
             aria-label="Retry loading data"
           >
             Retry
@@ -129,7 +129,7 @@ const AgentDashboard = () => {
 
       {/* ── Stats Grid ── */}
       {isDashboardView && (
-        <div className="grid grid-cols-2 gap-4 mb-8 lg:grid-cols-4 animate-fade-in stagger-2">
+        <div className="grid grid-cols-2 gap-4 mb-8 lg:grid-cols-4 animate-fade-in">
           <StatCard title="My Fields"       value={stats.total}     icon={MapPin}        variant="primary" />
           <StatCard title="Active Growing"  value={stats.active}    icon={Sprout}        variant="success" />
           <StatCard
@@ -145,8 +145,8 @@ const AgentDashboard = () => {
       {/* ── Main Content Grid ── */}
       <div className={
         (isDashboardView || isUpdatesView)
-          ? 'grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in stagger-3'
-          : 'animate-fade-in stagger-3'
+          ? 'grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in'
+          : 'animate-fade-in'
       }>
 
         {/* Fields Panel */}
@@ -156,25 +156,24 @@ const AgentDashboard = () => {
             {/* Search */}
             <Card padding="md">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none left-3 top-1/2" />
                 <input
                   type="text"
                   placeholder="Search your fields…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-[var(--border-default)]
-                             bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm
-                             placeholder:text-[var(--text-muted)]
-                             focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)]
+                  className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-gray-300
+                             bg-white text-gray-900 text-sm
+                             placeholder:text-gray-400
+                             focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500
                              transition-colors"
-                  style={{ color: 'var(--text-primary)' }}
                   aria-label="Search fields"
                   id="field-search"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                    className="absolute text-gray-400 transition-colors -translate-y-1/2 right-3 top-1/2 hover:text-gray-900"
                     aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
@@ -185,7 +184,7 @@ const AgentDashboard = () => {
 
             {/* Results Header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              <h2 className="text-base font-semibold text-gray-900">
                 My Assigned Fields
               </h2>
               <Badge variant="primary" size="md" aria-live="polite">
@@ -196,13 +195,13 @@ const AgentDashboard = () => {
             {/* Field Cards */}
             {filteredFields.length === 0 ? (
               <Card className="py-16 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-[var(--bg-secondary)] flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="w-7 h-7 text-[var(--text-muted)]" />
+                <div className="flex items-center justify-center mx-auto mb-4 bg-gray-100 w-14 h-14 rounded-2xl">
+                  <MapPin className="text-gray-400 w-7 h-7" />
                 </div>
-                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+                <h3 className="mb-1 text-base font-semibold text-gray-900">
                   No fields found
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)] max-w-xs mx-auto">
+                <p className="max-w-xs mx-auto text-sm text-gray-600">
                   {searchQuery
                     ? 'No fields match your search query'
                     : "You don't have any fields assigned yet. Contact your admin."}
@@ -227,13 +226,13 @@ const AgentDashboard = () => {
           <div className="space-y-4">
 
             {/* Recent Activity */}
-            <Card className="overflow-hidden border-light shadow-sm">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-light bg-earth-50/30">
+            <Card className="overflow-hidden border-gray-200 shadow-sm">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-amber-50/30">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center shadow-sm">
-                    <ClipboardList className="w-4 h-4 text-primary-600" />
+                  <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg shadow-sm">
+                    <ClipboardList className="w-4 h-4 text-green-600" />
                   </div>
-                  <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Feed Activity</h3>
+                  <h3 className="text-sm font-bold tracking-wider text-gray-900 uppercase">Feed Activity</h3>
                 </div>
                 <Badge variant="primary" size="sm">Live</Badge>
               </div>
@@ -241,40 +240,40 @@ const AgentDashboard = () => {
               <div className="p-5">
               {recentActivity.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-earth-50 flex items-center justify-center mb-4">
-                    <ClipboardList className="w-8 h-8 text-muted/40" />
+                  <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-amber-50">
+                    <ClipboardList className="w-8 h-8 text-gray-300" />
                   </div>
-                  <p className="text-sm font-bold text-primary mb-1">
+                  <p className="mb-1 text-sm font-bold text-gray-900">
                     No recent activity
                   </p>
-                  <p className="text-xs text-muted font-medium max-w-[180px]">
+                  <p className="text-xs text-gray-500 font-medium max-w-[180px]">
                     Field updates will appear here as you log them.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-light before:content-['']">
+                <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200 before:content-['']">
                   {recentActivity.map((update, index) => (
-                    <div key={index} className="flex gap-4 relative z-10 group cursor-pointer" onClick={() => navigate(`/fields/${update.field_id}`)}>
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm transition-transform group-hover:scale-110 ${index === 0 ? 'bg-primary-500 scale-110' : 'bg-earth-200'}`}>
-                         <div className={`w-1.5 h-1.5 rounded-full ${index === 0 ? 'bg-white animate-pulse' : 'bg-earth-500'}`} />
+                    <div key={index} className="relative z-10 flex gap-4 cursor-pointer group" onClick={() => navigate(`/fields/${update.field_id}`)}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm transition-transform group-hover:scale-110 ${index === 0 ? 'bg-green-500 scale-110' : 'bg-amber-200'}`}>
+                         <div className={`w-1.5 h-1.5 rounded-full ${index === 0 ? 'bg-white animate-pulse' : 'bg-amber-600'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
-                           <p className="text-xs font-extrabold text-primary uppercase tracking-tight truncate">
+                           <p className="text-xs font-extrabold tracking-tight text-gray-900 uppercase truncate">
                              {update.field_name}
                            </p>
-                           <time className="text-[10px] font-bold text-muted tabular-nums">
+                           <time className="text-[10px] font-bold text-gray-500 tabular-nums">
                              {new Date(update.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                            </time>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-muted uppercase tracking-tighter">Transitioned to</span>
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Transitioned to</span>
                           <Badge variant={normalizeStatus(update.stage) === 'ready' ? 'success' : 'primary'} size="sm" className="font-bold">
                             {update.stage}
                           </Badge>
                         </div>
                         {update.notes && (
-                          <div className="mt-2 text-[11px] text-secondary bg-earth-50 p-2 rounded-lg border border-light/50 line-clamp-2 italic">
+                          <div className="mt-2 text-[11px] text-gray-600 bg-amber-50 p-2 rounded-lg border border-gray-200 line-clamp-2 italic">
                             "{update.notes}"
                           </div>
                         )}
@@ -285,8 +284,8 @@ const AgentDashboard = () => {
               )}
               </div>
               
-              <div className="px-5 py-3 border-t border-light bg-earth-50/10">
-                 <button onClick={() => navigate('/agent/fields')} className="w-full text-[10px] font-extrabold uppercase tracking-widest text-primary-600 hover:text-primary-700 transition-colors">
+              <div className="px-5 py-3 border-t border-gray-200 bg-amber-50/10">
+                 <button onClick={() => navigate('/agent/fields')} className="w-full text-[10px] font-extrabold uppercase tracking-widest text-green-600 hover:text-green-700 transition-colors">
                     View Full History
                  </button>
               </div>
