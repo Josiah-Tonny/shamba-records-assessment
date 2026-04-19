@@ -1,8 +1,8 @@
 const STATUS_MAP = {
   active: {
     label: 'Active',
-    dot:   'bg-green-500',
-    pill:  'bg-green-50 text-green-700 border border-green-200',
+    dot:   'bg-emerald-500',
+    pill:  'bg-emerald-50 text-emerald-700 border border-emerald-200',
   },
   at_risk: {
     label: 'At Risk',
@@ -11,8 +11,8 @@ const STATUS_MAP = {
   },
   completed: {
     label: 'Completed',
-    dot:   'bg-green-500',
-    pill:  'bg-green-50 text-green-700 border border-green-200',
+    dot:   'bg-emerald-500',
+    pill:  'bg-emerald-50 text-emerald-700 border border-emerald-200',
   },
 };
 

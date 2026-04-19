@@ -155,21 +155,21 @@ const AdminDashboard = () => {
 
       {/* ── Error Banner ── */}
       {error && (
-        <div className="mb-4 flex items-start gap-3 p-3 rounded-lg bg-error-50 border border-error-200 shrink-0 animate-shake">
-          <AlertTriangle className="w-4 h-4 text-error-600 shrink-0 mt-0.5" />
-          <p className="text-sm text-error-700">{error}</p>
+        <div className="mb-4 flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 shrink-0 animate-shake">
+          <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700 flex-1">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="ml-auto text-error-400 hover:text-error-600 transition-all duration-fast"
+            className="ml-auto text-red-400 hover:text-red-600 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       )}
 
       {/* ── Stats Grid ── */}
       {isDashboardView && (
-        <div className="grid grid-cols-2 gap-3 mb-4 lg:grid-cols-4 shrink-0 animate-fade-in stagger-2">
+        <div className="grid grid-cols-2 gap-4 mb-6 lg:grid-cols-4 shrink-0 animate-fade-in">
           <StatCard title="Total Fields"    value={stats.total}     icon={MapPin}        variant="primary" />
           <StatCard title="Active Growing"  value={stats.active}    icon={Sprout}        variant="success" />
           <StatCard title="At Risk"         value={stats.atRisk}    icon={AlertTriangle} variant="warning" />
@@ -179,8 +179,8 @@ const AdminDashboard = () => {
 
       {/* ── Create Field Form ── */}
       {showForm && (isDashboardView || isFieldsView) && (
-        <Card className="mb-8 border-primary-200 shadow-xl shadow-primary-900/5 bg-gradient-to-br from-white to-earth-50 shrink-0 animate-scale-in overflow-hidden" padding="none">
-          <div className="bg-primary-600 px-6 py-4 flex items-center justify-between">
+        <Card className="mb-8 border-emerald-200 shadow-xl shadow-emerald-900/5 bg-gradient-to-br from-white to-gray-50 shrink-0 animate-fade-in overflow-hidden" padding="none">
+          <div className="bg-emerald-600 px-6 py-4 flex items-center justify-between">
             <h2 className="flex items-center gap-2.5 text-white font-bold uppercase tracking-widest text-xs">
               <Plus className="w-4 h-4" />
               Field Provisioning Workshop
@@ -191,46 +191,43 @@ const AdminDashboard = () => {
           <CardContent className="p-6">
             <form onSubmit={handleCreateField} className="space-y-6">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Asset Name</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 tracking-wide uppercase ml-1">Asset Name</label>
                   <Input
                     placeholder="e.g., North Valley"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="rounded-xl border-light focus:border-primary-500 transition-all font-semibold"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Botanical Class</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 tracking-wide uppercase ml-1">Botanical Class</label>
                   <Input
                     placeholder="e.g., Arabica Coffee"
                     required
                     value={formData.crop_type}
                     onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
-                    className="rounded-xl border-light focus:border-primary-500 transition-all font-semibold"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Inauguration Date</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 tracking-wide uppercase ml-1">Inauguration Date</label>
                   <Input
                     type="date"
                     required
                     value={formData.planting_date}
                     onChange={(e) => setFormData({ ...formData, planting_date: e.target.value })}
-                    className="rounded-xl border-light focus:border-primary-500 transition-all font-semibold"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-muted tracking-widest ml-1">Assignment Officer</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 tracking-wide uppercase ml-1">Assignment Officer</label>
                   <div className="relative">
                     <select
                       value={formData.assigned_to}
                       onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                      className="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border border-light
-                                 bg-white text-primary font-semibold
-                                 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-                                 transition-all duration-300 text-sm shadow-sm"
+                      className="w-full appearance-none px-4 py-3 pr-10 rounded-xl border border-gray-300
+                                 bg-white text-gray-900 font-semibold
+                                 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                                 transition-all duration-200 text-sm shadow-sm"
                     >
                       <option value="">Unassigned</option>
                       {agents.map((agent) => (
