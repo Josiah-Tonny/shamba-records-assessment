@@ -73,8 +73,8 @@ const AgentDashboard = () => {
         {(isDashboardView || isUpdatesView) && (
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div className="flex items-center gap-5">
-              <div className="flex items-center justify-center w-16 h-16 border-2 border-white shadow-xl rounded-2xl bg-gradient-to-br from-green-50 to-white shrink-0">
-                <div className="flex items-center justify-center w-12 h-12 bg-green-600 shadow-inner rounded-xl">
+              <div className="flex items-center justify-center w-16 h-16 border-2 border-white shadow-xl rounded-2xl bg-gradient-to-br from-emerald-50 to-white shrink-0">
+                <div className="flex items-center justify-center w-12 h-12 shadow-inner rounded-xl bg-emerald-600">
                   <User className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -83,18 +83,18 @@ const AgentDashboard = () => {
                   Habari, {user?.name?.split(' ')[0]}!
                 </h1>
                 <p className="text-sm font-semibold text-gray-500 tracking-wide uppercase mt-1.5 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   Field Agent · {stats.total} Field{stats.total !== 1 ? 's' : ''} Managed
                 </p>
               </div>
             </div>
             
             <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-gray-200 shadow-sm self-start md:self-auto">
-               <div className="px-4 py-2 border border-gray-200 rounded-xl bg-amber-50">
+               <div className="px-4 py-2 border border-gray-200 rounded-xl bg-gray-50">
                   <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Local Time</p>
                   <p className="font-mono text-sm font-bold text-gray-900">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
                </div>
-               <div className="flex items-center justify-center w-12 h-12 text-green-600 rounded-xl bg-green-50">
+               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600">
                   <Calendar className="w-5 h-5" />
                </div>
             </div>
@@ -294,14 +294,14 @@ const AgentDashboard = () => {
             {/* Quick Actions */}
             {isDashboardView && (
               <Card>
-                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+                <h3 className="mb-3 text-sm font-semibold text-emerald-600">
                   Quick Actions
                 </h3>
                 <div className="space-y-1.5">
                   <button
                     onClick={() => navigate('/agent/fields')}
                     className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm
-                               text-[var(--text-secondary)] hover:bg-[var(--earth-100)] hover:text-[var(--text-primary)]
+                               text-emerald-600 hover:bg-emerald-100 hover:text-emerald-600
                                transition-colors group"
                     aria-label="Submit a field update"
                   >
@@ -314,7 +314,7 @@ const AgentDashboard = () => {
                   <button
                     onClick={() => navigate('/agent/fields')}
                     className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm
-                               text-[var(--text-secondary)] hover:bg-[var(--earth-100)] hover:text-[var(--text-primary)]
+                               text-emerald-600 hover:bg-emerald-100 hover:text-emerald-600
                                transition-colors group"
                     aria-label="View all assigned fields"
                   >

@@ -64,13 +64,13 @@ const SidebarLayout = ({ children }) => {
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3 w-full">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center flex-shrink-0 shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Sprout className="w-6 h-6 text-white" />
             </div>
             {isSidebarOpen && (
               <div className="overflow-hidden">
                 <h1 className="font-bold text-lg text-gray-900 whitespace-nowrap">
-                  Shamba <span className="text-green-600">Records</span>
+                  Shamba <span className="text-emerald-600">Records</span>
                 </h1>
                 <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500 whitespace-nowrap">
                   {isAdmin ? 'Admin Portal' : 'Agent Portal'}
@@ -93,9 +93,9 @@ const SidebarLayout = ({ children }) => {
                   navigate(item.path);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`mb-1 group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 ${!isSidebarOpen ? 'justify-center mx-2' : 'mx-3'} ${active ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-100'}`}
+                className={`mb-1 group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 ${!isSidebarOpen ? 'justify-center mx-2' : 'mx-3'} ${active ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-100'}`}
               >
-                <div className={`flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-300 ${active ? 'bg-green-100 text-green-600' : 'group-hover:bg-green-50 group-hover:text-green-500'}`}>
+                <div className={`flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-300 ${active ? 'bg-emerald-100 text-emerald-600' : 'group-hover:bg-emerald-50 group-hover:text-emerald-500'}`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 {isSidebarOpen && (
@@ -104,7 +104,7 @@ const SidebarLayout = ({ children }) => {
                   </span>
                 )}
                 {active && isSidebarOpen && (
-                  <div className="w-1 h-4 rounded-full bg-green-600 ml-auto" />
+                  <div className="w-1 h-4 rounded-full bg-emerald-600 ml-auto" />
                 )}
               </button>
             );
@@ -114,9 +114,9 @@ const SidebarLayout = ({ children }) => {
         {/* User Section */}
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <div className={`flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 hover:bg-white hover:shadow-sm ${!isSidebarOpen ? 'justify-center p-1' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-100 to-green-200 border-2 border-white flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-0.5">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-100 to-emerald-200 border-2 border-white flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-0.5">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                <User className="w-5 h-5 text-green-600" />
+                <User className="w-5 h-5 text-emerald-600" />
               </div>
             </div>
             {isSidebarOpen && (
@@ -144,7 +144,7 @@ const SidebarLayout = ({ children }) => {
         {/* Collapse Toggle (Desktop only) */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-green-600 text-white items-center justify-center shadow-md hover:bg-green-700 transition-all duration-150 hover:scale-110 z-50"
+          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-emerald-600 text-white items-center justify-center shadow-md hover:bg-emerald-700 transition-all duration-150 hover:scale-110 z-50"
         >
           {isSidebarOpen ? (
             <ChevronLeft className="w-4 h-4" />
