@@ -35,35 +35,9 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// Security: CORS
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'https://shamba-records-assessment-3nfrbh75a.vercel.app',
-  'https://shamba-records-assessment-ipexczc3s.vercel.app',
-  process.env.FRONTEND_URL
-].filter((v, i, a) => v && a.indexOf(v) === i);
-
+// Security: CORS - allow all origins for Vercel serverless
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    
-    // Check if the origin is allowed
-    const isAllowed = allowedOrigins.some(allowed => {
-      if (!allowed) return false;
-      return origin === allowed || origin.startsWith(allowed);
-    });
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.warn('CORS attempt from unauthorized origin:', origin);
-      // In production, you might want to be stricter, but for debugging let's allow it
-      // or return the origin to satisfy the browser
-      callback(null, true); 
-    }
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
