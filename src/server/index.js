@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import fieldRoutes from './routes/fields.js';
+import pool from './db.js';
 
 dotenv.config();
 
@@ -79,12 +80,26 @@ app.use('/api/auth', authRoutes);
 app.use('/api/fields', fieldRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'unknown';
+  try {
+    const result = await pool.query('SELECT NOW()');
+    dbStatus = result.rows.length > 0 ? 'connected' : 'no_rows';
+  } catch (err) {
+    dbStatus = `error: ${err.message}`;
+  }
+
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
-    database: process.env.DATABASE_URL ? 'configured' : 'missing'
+    database: dbStatus,
+    config: {
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasJwtSecret: !!process.env.JWT_SECRET,
+      hasRefreshSecret: !!process.env.JWT_REFRESH_SECRET,
+      frontendUrl: process.env.FRONTEND_URL
+    }
   });
 });
 
@@ -100,19 +115,23 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error('SERVER ERROR:', {
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack,
+    path: req.path,
+    method: req.method
+  });
   
-  let message = 'Internal server error';
-  if (process.env.NODE_ENV !== 'production') {
-    message = err.message || String(err);
-  }
-  if (typeof message === 'object') {
-    message = JSON.stringify(message);
-  }
+  // Return more descriptive error even in production for debugging deployment
+  const errorMessage = err.message || 'Internal server error';
   
   res.status(err.status || 500).json({
     success: false,
-    error: message
+    error: errorMessage,
+    // Add a hint if it looks like a DB error
+    hint: err.message?.includes('connection') || err.message?.includes('SSL') 
+      ? 'Database connection issue. Check DATABASE_URL and SSL settings.' 
+      : undefined
   });
 });
 

@@ -6,11 +6,18 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('neon.tech') 
+    ? { rejectUnauthorized: false } 
+    : false,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
+
+// Basic validation
+if (!process.env.DATABASE_URL) {
+  console.error('CRITICAL ERROR: DATABASE_URL environment variable is missing!');
+}
 
 // Test connection
 pool.on('connect', () => {
