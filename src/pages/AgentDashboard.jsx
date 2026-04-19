@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useAgentData } from '../hooks/useAgentData';
+import { normalizeStatus } from '../utils/fieldUtils';
+import { formatDate } from '../utils/dateUtils';
+import { getAgentView } from '../utils/viewUtils';
 import {
   MapPin, Sprout, AlertTriangle, CheckCircle,
   Search, User, Calendar, ClipboardList, ArrowRight, X
@@ -14,73 +17,43 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Badge from '../components/ui/Badge';
 
 const AgentDashboard = () => {
-  const normalizeStatus = (status) =>
-    String(status || '').trim().toLowerCase().replace(/\s+/g, '_');
-
-  const { user }    = useAuth();
-  const location    = useLocation();
-  const navigate    = useNavigate();
+  const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  const [fields, setFields]           = useState([]);
-  const [updates, setUpdates]         = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const fieldsRes = await api.get('/fields/mine');
-      const fetchedFields = fieldsRes.data.data.fields;
-      setFields(fetchedFields);
+  // Use custom hook for data fetching with error handling and retry logic
+  const { fields, updates, loading, error, retry } = useAgentData();
 
-      // Fetch recent updates for all assigned fields in parallel
-      const results = await Promise.allSettled(
-        fetchedFields.map((field) =>
-          api.get(`/fields/${field.id}/updates`).then((res) =>
-            (res.data.data.updates || []).map((u) => ({
-              ...u,
-              field_name: field.name,
-            }))
-          )
-        )
-      );
+  // Determine current view
+  const { isDashboardView, isFieldsView, isUpdatesView } = getAgentView(currentPath);
 
-      const allUpdates = results
-        .filter((r) => r.status === 'fulfilled')
-        .flatMap((r) => r.value)
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-      setUpdates(allUpdates);
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchData(); }, []);
-
-  const filteredFields = fields.filter(
-    (field) =>
-      field.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      field.crop_type.toLowerCase().includes(searchQuery.toLowerCase())
+  // Memoize filtered fields to prevent unnecessary recalculations
+  const filteredFields = useMemo(
+    () =>
+      fields.filter(
+        (field) =>
+          field.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          field.crop_type.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [fields, searchQuery]
   );
 
-  const stats = {
-    total:     fields.length,
-    active:    fields.filter(f => normalizeStatus(f.status) === 'active').length,
-    atRisk:    fields.filter(f => normalizeStatus(f.status) === 'at_risk').length,
-    completed: fields.filter(f => normalizeStatus(f.status) === 'completed').length,
-  };
+  // Memoize stats calculation
+  const stats = useMemo(
+    () => ({
+      total: fields.length,
+      active: fields.filter((f) => normalizeStatus(f.status) === 'active').length,
+      atRisk: fields.filter((f) => normalizeStatus(f.status) === 'at_risk').length,
+      completed: fields.filter((f) => normalizeStatus(f.status) === 'completed').length,
+    }),
+    [fields]
+  );
 
-  const recentActivity = updates.slice(0, 5);
-
-  const isDashboardView = currentPath === '/agent/dashboard';
-  const isFieldsView    = currentPath === '/agent/fields';
-  const isUpdatesView   = currentPath === '/agent/updates';
+  // Memoize recent activity
+  const recentActivity = useMemo(() => updates.slice(0, 5), [updates]);
 
   if (loading) {
     return (
@@ -96,7 +69,7 @@ const AgentDashboard = () => {
     <SidebarLayout>
 
       {/* ── Page Header ── */}
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-in stagger-1">
         {(isDashboardView || isUpdatesView) && (
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[var(--primary-100)] flex items-center justify-center shrink-0">
@@ -124,21 +97,22 @@ const AgentDashboard = () => {
 
       {/* ── Error Banner ── */}
       {error && (
-        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-[var(--error-50)] border border-[var(--error-200)]">
-          <AlertTriangle className="w-5 h-5 text-[var(--error-600)] shrink-0 mt-0.5" />
+        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-[var(--error-50)] border border-[var(--error-200)]" role="alert" aria-live="polite">
+          <AlertTriangle className="w-5 h-5 text-[var(--error-600)] shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-sm text-[var(--error-700)]">{error}</p>
           <button
-            onClick={() => setError(null)}
-            className="ml-auto text-[var(--error-400)] hover:text-[var(--error-600)] transition-colors"
+            onClick={retry}
+            className="ml-auto px-3 py-1.5 text-sm font-medium text-[var(--error-600)] hover:bg-[var(--error-100)] rounded-lg transition-colors"
+            aria-label="Retry loading data"
           >
-            <X className="w-4 h-4" />
+            Retry
           </button>
         </div>
       )}
 
       {/* ── Stats Grid ── */}
       {isDashboardView && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-8 lg:grid-cols-4 animate-fade-in stagger-2">
           <StatCard title="My Fields"       value={stats.total}     icon={MapPin}        variant="primary" />
           <StatCard title="Active Growing"  value={stats.active}    icon={Sprout}        variant="success" />
           <StatCard
@@ -154,8 +128,8 @@ const AgentDashboard = () => {
       {/* ── Main Content Grid ── */}
       <div className={
         (isDashboardView || isUpdatesView)
-          ? 'grid grid-cols-1 lg:grid-cols-3 gap-6'
-          : ''
+          ? 'grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in stagger-3'
+          : 'animate-fade-in stagger-3'
       }>
 
         {/* Fields Panel */}
@@ -177,11 +151,14 @@ const AgentDashboard = () => {
                              focus:outline-none focus:ring-2 focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)]
                              transition-colors"
                   style={{ color: 'var(--text-primary)' }}
+                  aria-label="Search fields"
+                  id="field-search"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                    aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -194,7 +171,7 @@ const AgentDashboard = () => {
               <h2 className="text-base font-semibold text-[var(--text-primary)]">
                 My Assigned Fields
               </h2>
-              <Badge variant="primary" size="md">
+              <Badge variant="primary" size="md" aria-live="polite">
                 {filteredFields.length} field{filteredFields.length !== 1 ? 's' : ''}
               </Badge>
             </div>
@@ -261,7 +238,7 @@ const AgentDashboard = () => {
                           <div className="w-px flex-1 bg-[var(--border-light)] mt-1" />
                         )}
                       </div>
-                      <div className="pb-3 min-w-0 flex-1">
+                      <div className="flex-1 min-w-0 pb-3">
                         <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                           {update.field_name}
                         </p>
@@ -270,9 +247,7 @@ const AgentDashboard = () => {
                           <Badge variant="success" size="sm">{update.stage}</Badge>
                         </div>
                         <p className="text-xs text-[var(--text-muted)] mt-1">
-                          {new Date(update.created_at).toLocaleDateString(undefined, {
-                            month: 'short', day: 'numeric', year: 'numeric'
-                          })}
+                          {formatDate(update.created_at)}
                         </p>
                       </div>
                     </div>
@@ -293,24 +268,26 @@ const AgentDashboard = () => {
                     className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm
                                text-[var(--text-secondary)] hover:bg-[var(--earth-100)] hover:text-[var(--text-primary)]
                                transition-colors group"
+                    aria-label="Submit a field update"
                   >
                     <span className="flex items-center gap-2.5">
-                      <span className="text-base">📝</span>
+                      <span className="text-base" aria-hidden="true">📝</span>
                       Submit Field Update
                     </span>
-                    <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" aria-hidden="true" />
                   </button>
                   <button
                     onClick={() => navigate('/agent/fields')}
                     className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm
                                text-[var(--text-secondary)] hover:bg-[var(--earth-100)] hover:text-[var(--text-primary)]
                                transition-colors group"
+                    aria-label="View all assigned fields"
                   >
                     <span className="flex items-center gap-2.5">
-                      <span className="text-base">📍</span>
+                      <span className="text-base" aria-hidden="true">📍</span>
                       View All My Fields
                     </span>
-                    <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" aria-hidden="true" />
                   </button>
                 </div>
               </Card>

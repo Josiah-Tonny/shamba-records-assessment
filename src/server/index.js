@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-vercel-app.vercel.app'] // Replace with your Vercel domain
+    ? process.env.FRONTEND_URL || '*' // Use FRONTEND_URL env var or wildcard
     : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'], // Vite dev server
   credentials: true
 }));
@@ -86,9 +86,10 @@ const startServer = async () => {
   }
 };
 
-// Start server if this is the main module (direct execution)
-if (isMainModule()) {
+// Start server if this is the main module (direct execution) and not in production
+if (isMainModule() && process.env.NODE_ENV !== 'production') {
   startServer();
 }
 
-export default app;
+// Export for Vercel serverless
+module.exports = app;

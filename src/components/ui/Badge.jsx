@@ -1,10 +1,10 @@
 const variantStyles = {
-  default: 'bg-[var(--earth-100)] text-[var(--earth-700)]',
-  primary: 'bg-[var(--primary-100)] text-[var(--primary-700)]',
-  success: 'bg-[var(--success-100)] text-[var(--success-700)]',
-  warning: 'bg-[var(--warning-100)] text-[var(--warning-700)]',
-  error: 'bg-[var(--error-100)] text-[var(--error-700)]',
-  info: 'bg-[var(--info-100)] text-[var(--info-700)]',
+  default: 'bg-earth-100 text-earth-700',
+  primary: 'bg-primary-100 text-primary-700',
+  success: 'bg-success-100 text-success-700',
+  warning: 'bg-warning-100 text-warning-700',
+  error: 'bg-error-100 text-error-700',
+  info: 'bg-info-100 text-info-700',
 };
 
 const sizeStyles = {
@@ -21,12 +21,7 @@ const Badge = ({
 }) => {
   return (
     <span
-      className={`
-        inline-flex items-center font-medium rounded-full
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${className}
-      `}
+      className={`inline-flex items-center font-medium rounded-full transition-all duration-fast ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
     >
       {children}
     </span>

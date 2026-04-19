@@ -1,12 +1,12 @@
 import { Loader2 } from 'lucide-react';
 
 const variantStyles = {
-  primary: 'bg-[var(--primary-600)] text-white hover:bg-[var(--primary-700)] focus:ring-[var(--primary-500)]',
-  secondary: 'bg-[var(--earth-200)] text-[var(--earth-800)] hover:bg-[var(--earth-300)] focus:ring-[var(--earth-400)]',
-  outline: 'border-2 border-[var(--primary-600)] text-[var(--primary-600)] hover:bg-[var(--primary-50)] focus:ring-[var(--primary-500)]',
-  ghost: 'text-[var(--text-secondary)] hover:bg-[var(--earth-100)] hover:text-[var(--text-primary)] focus:ring-[var(--earth-400)]',
-  danger: 'bg-[var(--error-600)] text-white hover:bg-[var(--error-700)] focus:ring-[var(--error-500)]',
-  success: 'bg-[var(--success-600)] text-white hover:bg-[var(--success-700)] focus:ring-[var(--success-500)]',
+  primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
+  secondary: 'bg-earth-200 text-earth-800 hover:bg-earth-300 focus:ring-earth-400',
+  outline: 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500',
+  ghost: 'text-secondary hover:bg-earth-100 hover:text-primary focus:ring-earth-400',
+  danger: 'bg-error-600 text-white hover:bg-error-700 focus:ring-error-500',
+  success: 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500',
 };
 
 const sizeStyles = {
@@ -25,8 +25,8 @@ const Button = ({
   type = 'button',
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md active:scale-[0.98] active:shadow-sm';
+
   return (
     <button
       type={type}

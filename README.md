@@ -220,7 +220,8 @@ Field status is computed dynamically based on the following rules:
    JWT_SECRET=your_secret_here
    JWT_REFRESH_SECRET=another_secret_here
    NODE_ENV=production
-   VITE_API_URL=https://your-vercel-app.vercel.app
+   VITE_API_URL=/api
+   FRONTEND_URL=https://your-vercel-app.vercel.app
    ```
 
 4. **Add Database Connection**

@@ -65,15 +65,15 @@ const SidebarLayout = ({ children }) => {
         {/* Logo Section */}
         <div className="sidebar-header">
           <div className="flex items-center gap-3 w-full">
-            <div className="w-10 h-10 rounded-xl bg-[var(--primary-600)] flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center flex-shrink-0 shadow-md transition-all duration-fast hover:scale-105">
               <Sprout className="w-6 h-6 text-white" />
             </div>
             {isSidebarOpen && (
               <div className="overflow-hidden">
-                <h1 className="font-bold text-lg text-[var(--text-primary)] whitespace-nowrap">
+                <h1 className="font-bold text-lg text-primary whitespace-nowrap">
                   Shamba Records
                 </h1>
-                <p className="text-xs text-[var(--text-muted)] whitespace-nowrap">
+                <p className="text-xs text-muted whitespace-nowrap">
                   {isAdmin ? 'Admin Portal' : 'Agent Portal'}
                 </p>
               </div>
@@ -86,7 +86,7 @@ const SidebarLayout = ({ children }) => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
-            
+
             return (
               <button
                 key={item.path}
@@ -94,14 +94,14 @@ const SidebarLayout = ({ children }) => {
                   navigate(item.path);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`sidebar-nav-item ${active ? 'active' : ''} ${!isSidebarOpen ? 'justify-center' : ''}`}
+                className={`sidebar-nav-item ${active ? 'active' : ''} ${!isSidebarOpen ? 'justify-center' : ''} transition-all duration-fast hover:translate-x-1`}
               >
                 <Icon className={`w-5 h-5 flex-shrink-0`} />
                 {isSidebarOpen && (
                   <span className="whitespace-nowrap flex-1">{item.label}</span>
                 )}
                 {active && isSidebarOpen && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary-600)] flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary-600 flex-shrink-0" />
                 )}
               </button>
             );
@@ -110,16 +110,16 @@ const SidebarLayout = ({ children }) => {
 
         {/* User Section */}
         <div className="sidebar-footer">
-          <div className={`flex items-center gap-3 p-2 rounded-lg ${!isSidebarOpen ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-[var(--primary-100)] flex items-center justify-center flex-shrink-0">
-              <User className="w-5 h-5 text-[var(--primary-600)]" />
+          <div className={`flex items-center gap-3 p-2 rounded-lg transition-all duration-fast hover:bg-earth-100 ${!isSidebarOpen ? 'justify-center' : ''}`}>
+            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+              <User className="w-5 h-5 text-primary-600" />
             </div>
             {isSidebarOpen && (
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-[var(--text-primary)] truncate">
+                <p className="font-medium text-sm text-primary truncate">
                   {user?.name}
                 </p>
-                <p className="text-xs text-[var(--text-muted)] capitalize">
+                <p className="text-xs text-muted capitalize">
                   {user?.role}
                 </p>
               </div>
@@ -129,7 +129,7 @@ const SidebarLayout = ({ children }) => {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 p-2 mt-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--error-50)] hover:text-[var(--error-600)] transition-colors font-medium text-sm ${!isSidebarOpen ? 'justify-center' : ''}`}
+            className={`w-full flex items-center gap-3 p-2 mt-2 rounded-lg text-secondary hover:bg-error-50 hover:text-error-600 transition-all duration-fast font-medium text-sm ${!isSidebarOpen ? 'justify-center' : ''}`}
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && <span>Logout</span>}
@@ -139,7 +139,7 @@ const SidebarLayout = ({ children }) => {
         {/* Collapse Toggle (Desktop only) */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-[var(--primary-600)] text-white items-center justify-center shadow-md hover:bg-[var(--primary-700)] transition-colors z-50"
+          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-primary-600 text-white items-center justify-center shadow-md hover:bg-primary-700 transition-all duration-fast hover:scale-110 z-50"
         >
           {isSidebarOpen ? (
             <ChevronLeft className="w-4 h-4" />
@@ -150,29 +150,29 @@ const SidebarLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="main-content relative z-10 bg-[var(--bg-secondary)] overflow-hidden flex-1">
+      <div className="main-content relative z-10 bg-secondary overflow-hidden flex-1">
         {/* Top Header */}
-        <header className="top-header">
+        <header className="top-header sticky top-0 z-30 bg-primary/80 backdrop-blur-lg border-b border-light transition-all duration-fast">
           <div className="flex items-center gap-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-[var(--earth-100)] transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-earth-100 transition-all duration-fast active:scale-95"
             >
-              <Menu className="w-6 h-6 text-[var(--text-secondary)]" />
+              <Menu className="w-6 h-6 text-secondary" />
             </button>
-            
+
             {/* Breadcrumb / Title */}
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] hidden sm:block">
+            <h2 className="text-xl font-semibold text-primary hidden sm:block">
               {navItems.find(item => isActive(item.path))?.label || 'Dashboard'}
             </h2>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Notifications */}
-            <button className="relative p-2 rounded-lg hover:bg-[var(--earth-100)] transition-colors">
-              <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--error-500)]" />
+            <button className="relative p-2 rounded-lg hover:bg-earth-100 transition-all duration-fast active:scale-95">
+              <Bell className="w-5 h-5 text-secondary" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error-500" />
             </button>
           </div>
         </header>

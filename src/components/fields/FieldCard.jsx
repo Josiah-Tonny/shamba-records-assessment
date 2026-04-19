@@ -30,8 +30,8 @@ const FieldCard = ({ field }) => {
     <div
       className="relative flex flex-col bg-[var(--bg-primary)] rounded-2xl
                  border border-[var(--border-light)] p-5 overflow-hidden
-                 hover:shadow-md hover:border-[var(--primary-300)]
-                 transition-all duration-200 group"
+                 hover:-translate-y-1 hover:shadow-lg hover:border-[var(--primary-300)]
+                 transition-all duration-300 group animate-fade-in"
     >
       {/* Subtle top accent bar */}
       <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl
