@@ -29,7 +29,14 @@ router.post('/login', loginValidation, async (req, res) => {
 
   const { email, password } = req.body;
   console.log(`Login attempt for email: ${email}`);
-  
+  console.log(`JWT_SECRET exists: ${!!process.env.JWT_SECRET}`);
+  console.log(`JWT_REFRESH_SECRET exists: ${!!process.env.JWT_REFRESH_SECRET}`);
+
+  if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    console.error('CRITICAL: JWT secrets are missing!');
+    return res.status(500).json({ success: false, error: 'Server configuration error' });
+  }
+
   try {
     // Case-insensitive email lookup
     const result = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
@@ -81,6 +88,7 @@ router.post('/login', loginValidation, async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ success: false, error: error.message || 'Server error' });
   }
 });
@@ -138,14 +146,22 @@ router.post('/logout', (req, res) => {
 // POST /api/auth/refresh
 router.post('/refresh', async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  console.log(`Refresh attempt - has cookie: ${!!refreshToken}`);
+  console.log(`JWT_REFRESH_SECRET exists: ${!!process.env.JWT_REFRESH_SECRET}`);
 
   if (!refreshToken) {
     return res.status(401).json({ success: false, error: 'No refresh token' });
   }
 
+  if (!process.env.JWT_REFRESH_SECRET) {
+    console.error('CRITICAL: JWT_REFRESH_SECRET is missing!');
+    return res.status(500).json({ success: false, error: 'Server configuration error' });
+  }
+
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    
+    console.log(`Refresh token decoded for user ID: ${decoded.userId}`);
+
     // Verify user still exists
     const result = await pool.query('SELECT id, email, role FROM users WHERE id = $1', [decoded.userId]);
     const user = result.rows[0];
@@ -163,6 +179,8 @@ router.post('/refresh', async (req, res) => {
 
     res.json({ success: true, accessToken });
   } catch (error) {
+    console.error('Refresh error:', error);
+    console.error('Error stack:', error.stack);
     res.status(401).json({ success: false, error: error.message || 'Invalid refresh token' });
   }
 });
