@@ -47,17 +47,7 @@ JWT_REFRESH_SECRET=another_secret_key
 PORT=3001
 ```
 
-3. Create database tables:
-```bash
-node create-tables.js
-```
-
-4. Add demo data (optional):
-```bash
-node src/server/seed.js
-```
-
-5. Start the app:
+3. Start the app:
 ```bash
 npm run dev
 ```
