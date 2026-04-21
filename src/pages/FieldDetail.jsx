@@ -12,7 +12,7 @@ import { formatDate } from '../utils/dateUtils';
 import {
   ArrowLeft, CalendarDays, Sprout, User,
   ClipboardList, ChevronDown, AlertTriangle, Send,
-  CheckCircle, History
+  CheckCircle, History, MapPin
 } from 'lucide-react';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
