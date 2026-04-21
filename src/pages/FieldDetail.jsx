@@ -122,7 +122,7 @@ const FieldDetail = () => {
 
         {/* ── Back Button ── */}
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(user?.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard')}
           className="inline-flex items-center gap-1.5 text-sm text-primary
                      hover:text-primary-dark mb-6 transition-all duration-fast group"
           aria-label="Back to dashboard"
