@@ -22,15 +22,15 @@ const GrowthProgress = ({ currentStage }) => {
           const isPast = idx < currentIdx;
           const isCurrent = idx === currentIdx;
           const isFuture = idx > currentIdx;
-          
+
           return (
             <div key={stage} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
-                    ${isCurrent ? 'bg-primary-600 border-primary-600 text-white scale-110 shadow-md' : ''}
-                    ${isPast ? 'bg-primary-500 border-primary-500 text-white' : ''}
-                    ${isFuture ? 'bg-earth-50 border-light text-muted' : ''}
+                    ${isCurrent ? 'bg-primary border-primary text-white scale-110 shadow-md' : ''}
+                    ${isPast ? 'bg-primary-mid border-primary-mid text-white' : ''}
+                    ${isFuture ? 'bg-surface-2 border-light text-muted' : ''}
                   `}
                   aria-current={isCurrent ? 'step' : undefined}
                 >
@@ -38,8 +38,8 @@ const GrowthProgress = ({ currentStage }) => {
                 </div>
                 <p
                   className={`text-xs mt-1.5 font-medium capitalize
-                    ${isCurrent ? 'text-primary-600' : ''}
-                    ${isPast ? 'text-earth-700' : ''}
+                    ${isCurrent ? 'text-primary' : ''}
+                    ${isPast ? 'text-text' : ''}
                     ${isFuture ? 'text-muted' : ''}
                   `}
                 >
@@ -49,7 +49,7 @@ const GrowthProgress = ({ currentStage }) => {
               {idx < STAGES.length - 1 && (
                 <div
                   className={`h-0.5 flex-1 -mt-5 mx-1 rounded
-                    ${idx < currentIdx ? 'bg-primary-500' : 'bg-light'}
+                    ${idx < currentIdx ? 'bg-primary-mid' : 'bg-border-light'}
                   `}
                   aria-hidden="true"
                 />

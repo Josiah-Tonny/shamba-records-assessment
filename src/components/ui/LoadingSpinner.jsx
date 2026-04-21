@@ -16,17 +16,17 @@ const LoadingSpinner = ({
   const spinner = (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
       <Loader2 
-        className={`${sizeMap[size]} animate-spin text-[var(--primary-600)]`} 
+        className={`${sizeMap[size]} animate-spin text-primary`} 
       />
       {text && (
-        <p className="text-sm text-[var(--text-secondary)]">{text}</p>
+        <p className="text-sm text-text-secondary">{text}</p>
       )}
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-secondary)]">
+      <div className="min-h-screen flex items-center justify-center bg-surface">
         {spinner}
       </div>
     );
