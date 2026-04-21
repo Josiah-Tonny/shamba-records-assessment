@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../services/api';
+import { normalizeStatus } from '../utils/fieldUtils';
 import {
   MapPin, Sprout, AlertTriangle, CheckCircle,
   Plus, Users, Search, Filter, X, ChevronDown, LayoutDashboard
@@ -17,9 +18,6 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 const AdminDashboard = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-
-  const normalizeStatus = (status) =>
-    String(status || '').trim().toLowerCase().replace(/\s+/g, '_');
 
   const [fields, setFields]       = useState([]);
   const [agents, setAgents]       = useState([]);

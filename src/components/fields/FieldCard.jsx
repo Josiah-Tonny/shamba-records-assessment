@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Calendar, User, ArrowRight, Sprout, ChevronRight } from 'lucide-react';
 import FieldStatusBadge from './FieldStatusBadge';
 import Badge from '../ui/Badge';
+import { formatDate } from '../../utils/dateUtils';
 
 const stageEmoji = {
   planted:   '🌱',
@@ -11,12 +12,7 @@ const stageEmoji = {
 };
 
 const FieldCard = ({ field }) => {
-  const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric',
-    });
-
-  const emoji        = stageEmoji[field.stage]  || '•';
+  const emoji = stageEmoji[field.stage] || '•';
 
   return (
     <div

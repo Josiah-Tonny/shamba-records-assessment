@@ -51,10 +51,10 @@ export const useAgentData = () => {
         retryCount,
         timestamp: new Date().toISOString()
       });
-      
+
       // Auto-retry once on network errors
       if (retryCount === 0 && !err.response) {
-        console.log('Data fetch failed (network error)');
+        fetchData(1);
       }
     } finally {
       setLoading(false);
